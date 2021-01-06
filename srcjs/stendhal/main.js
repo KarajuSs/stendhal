@@ -17,6 +17,7 @@ var stendhal = window.stendhal = window.stendhal || {};
 stendhal.main = {
 	errorCounter: 0,
 	zoneFile: null,
+	loaded: false,
 
 	onDataMap: function(data) {
 		var zoneinfo = {};
@@ -104,21 +105,32 @@ stendhal.main = {
 				stendhal.ui.buddyList.update();
 				stendhal.ui.equip.update();
 				stendhal.ui.stats.update();
+				if (!stendhal.main.loaded) {
+					stendhal.main.loaded = true;
+					// delay visibile change of client a little to allow for initialisation in the background for a smoother experience
+					setTimeout(function() {
+						document.getElementById("client").style.display = "block";
+						document.getElementById("loginpopup").style.display = "none";
+					}, 300);
+				}
 			}
 		}
 	},
 
 	toggleSound: function() {
-		var soundbutton = document.getElementById("soundbutton");
-		if (stendhal.config.sound.play) {
-			soundbutton.textContent = "🔇";
-			stendhal.config.sound.play = false;
-		} else {
-			soundbutton.textContent = "🔊";
-			stendhal.config.sound.play = true;
-		}
+		stendhal.config.sound.play = !stendhal.config.sound.play;
+
+		stendhal.main.onSoundToggled();
 	},
 
+	onSoundToggled: function() {
+		var soundbutton = document.getElementById("soundbutton");
+		if (stendhal.config.sound.play) {
+			soundbutton.textContent = "🔊";
+		} else {
+			soundbutton.textContent = "🔇";
+		}
+	},
 
 	/**
 	 * registers global browser event handlers.
@@ -126,18 +138,23 @@ stendhal.main = {
 	registerBrowserEventHandlers: function() {
 		document.addEventListener("keydown", stendhal.ui.keyhandler.onKeyDown);
 		document.addEventListener("keyup", stendhal.ui.keyhandler.onKeyUp);
+		document.addEventListener("contextmenu", stendhal.main.preventContextMenu);
 
 		var gamewindow = document.getElementById("gamewindow");
 		gamewindow.setAttribute("draggable", true);
 		gamewindow.addEventListener("mousedown", stendhal.ui.gamewindow.onMouseDown);
-		gamewindow.addEventListener("mousemove", stendhal.ui.gamewindow.onMouseMove);
+		gamewindow.addEventListener("touchstart", stendhal.ui.gamewindow.onMouseDown);
+		gamewindow.addEventListener("dblclick", stendhal.ui.gamewindow.onMouseDown);
 		gamewindow.addEventListener("dragstart", stendhal.ui.gamewindow.onDragStart);
+		gamewindow.addEventListener("mousemove", stendhal.ui.gamewindow.onMouseMove);
+		gamewindow.addEventListener("touchmove", stendhal.ui.gamewindow.onMouseMove);
 		gamewindow.addEventListener("dragover", stendhal.ui.gamewindow.onDragOver);
 		gamewindow.addEventListener("drop", stendhal.ui.gamewindow.onDrop);
 		gamewindow.addEventListener("contextmenu", stendhal.ui.gamewindow.onContentMenu);
 
 		var minimap = document.getElementById("minimap");
 		minimap.addEventListener("click", stendhal.ui.minimap.onClick);
+		minimap.addEventListener("dblclick", stendhal.ui.minimap.onClick);
 
 		var buddyList = document.getElementById("buddyList");
 		buddyList.addEventListener("mouseup", stendhal.ui.buddyList.onMouseUp);
@@ -148,6 +165,8 @@ stendhal.main = {
 
 		var soundbutton = document.getElementById("soundbutton");
 		soundbutton.addEventListener("click", stendhal.main.toggleSound);
+		// update button state
+		stendhal.main.onSoundToggled();
 
 		var chatinput = document.getElementById("chatinput");
 		chatinput.addEventListener("keydown", stendhal.ui.chatinput.onKeyDown);
@@ -196,6 +215,10 @@ stendhal.main = {
 			// ignore
 		}
 		return true;
+	},
+
+	preventContextMenu: function(event) {
+		event.preventDefault();
 	}
 }
 

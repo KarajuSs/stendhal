@@ -11,11 +11,16 @@
  ***************************************************************************/
 package games.stendhal.server.entity;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.log4j.Logger;
 
+import games.stendhal.common.MathHelper;
 import games.stendhal.common.Outfits;
 import games.stendhal.common.Rand;
 
@@ -43,7 +48,78 @@ public class Outfit {
 	/** the logger instance. */
 	private static final Logger LOGGER = Logger.getLogger(Outfit.class);
 
+	private static final Map<String, String> EMPTY_MAP = new HashMap<>();
+
 	private final Map<String, Integer> layers = new HashMap<>();
+
+	// for mapping old player outfits to new ones
+	private final Map<String, Map<Integer, List<Integer>>> old_outfit_mapping = new HashMap<String, Map<Integer, List<Integer>>>() {{
+		put("body", new HashMap<Integer, List<Integer>>() {{
+			put(0, Arrays.asList(0, 1, 2, 3, 4, 5, 12, 14)); // male bodies
+			put(1, Arrays.asList(6, 7, 8, 9, 10, 11)); // female bodies 1
+			put(2, Arrays.asList(13)); // female bodies 2
+		}});
+		put("dress", new HashMap<Integer, List<Integer>>() {{
+			put(5, Arrays.asList(3)); // casual shirt & pants
+			put(6, Arrays.asList(2, 5)); // denim
+			put(11, Arrays.asList(38, 50)); // soldier uniform
+			put(22, Arrays.asList(18, 23, 35)); // robe
+			put(23, Arrays.asList(62)); // soldier uniform/armor
+			put(27, Arrays.asList(29)); // sleeveless dress
+			put(29, Arrays.asList(46)); // robe
+			put(50, Arrays.asList(43)); // soldier uniform with cape
+			put(52, Arrays.asList(24)); // denim wings
+		}});
+		put("head", new HashMap<Integer, List<Integer>>() {{
+			put(0, Arrays.asList(5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)); // small chin, small ears
+			put(1, Arrays.asList(0, 1, 2, 3, 4)); // small chin, large ears
+			put(2, Arrays.asList(8)); // large chin, small ears
+		}});
+		// eyes are set from old heads
+		put("eyes", new HashMap<Integer, List<Integer>>() {{
+			put(0, Arrays.asList(5, 6, 10)); // plain 1 (dark blue)
+			put(1, Arrays.asList(0, 1, 2, 3, 4, 7, 14, 21)); // plain 2 (red)
+			put(2, Arrays.asList(19)); // plain 3 (brown)
+			put(13, Arrays.asList(15)); // blinking
+			put(14, Arrays.asList(16)); // thick eyebrows
+			put(15, Arrays.asList(20)); // scar
+			put(18, Arrays.asList(8)); // small 1
+			put(19, Arrays.asList(9, 11)); // plain 1 (green)
+			put(20, Arrays.asList(17)); // plain 1 (pink)
+			put(21, Arrays.asList(13, 18)); // bright blue
+			put(23, Arrays.asList(12)); // small 2
+		}});
+		// mask is set from old heads
+		put("mask", new HashMap<Integer, List<Integer>> () {{
+			put(1, Arrays.asList(9)); // glasses
+			put(4, Arrays.asList(21)); // eyepatch
+			put(6, Arrays.asList(79, 86, 99)); // sunglasses
+		}});
+		put("hair", new HashMap<Integer, List<Integer>> () {{
+			put(23, Arrays.asList(3, 15)); // shoulder length curly
+			put(26, Arrays.asList(13)); // long ponytail
+			put(7, Arrays.asList(33, 34)); // short
+			put(20, Arrays.asList(38)); // shoulder length
+			put(0, Arrays.asList(37, 39, 99)); // bald
+		}});
+		// hat is set from old hair
+		put("hat", new HashMap<Integer, List<Integer>> () {{
+			put(1, Arrays.asList(33, 34)); // baseball cap
+			put(2, Arrays.asList(39)); // reverse baseball cap
+			put(13, Arrays.asList(37)); // robe hood
+			put(995, Arrays.asList(99)); // jester hat
+			put(999, IntStream.rangeClosed(50, 96).boxed().collect(Collectors.toList())); // santa hat
+		}});
+	}};
+
+	/**
+	 * If entity is wearing an index from this layer list, should not be considered naked.
+	 */
+	private final static Map<String, List<Integer>> bodyCoveringIndexes = new HashMap<String, List<Integer>>() {{
+		put("body", Arrays.asList(978, 979, 988, 989, 990, 991, 992, 993, 994, 995, 996, 997));
+		put("hat", Arrays.asList(993, 994));
+	}};
+
 
 	/**
 	 * Creates a new outfit. Set some of the parameters to null if you want an
@@ -84,8 +160,8 @@ public class Outfit {
 				layers = new String[] {strcode};
 			}
 
-		    for (int idx = 0; idx < layers.length; idx++) {
-		    	final String layer = layers[idx];
+			for (int idx = 0; idx < layers.length; idx++) {
+				final String layer = layers[idx];
 				if (layer.contains("=")) {
 					final String[] key = layer.split("=");
 					if (Outfits.LAYER_NAMES.contains(key[0])) {
@@ -97,8 +173,13 @@ public class Outfit {
 			try {
 				final int code = Integer.parseInt(strcode);
 
+				// store old indexes so we can retrieve correct mappings for new outfit parts
+				final int old_body = code % 100;
+				final int old_head = (int) (code / Math.pow(100, 2) % 100);
+				final int old_hair =  (int) (code / Math.pow(100, 3) % 100);
+
 				// compatibility for special outfits from old outfit system
-				int body = code % 100;
+				int body = old_body;
 				if (body >= 78) { // old special bodies started at index 78
 					body += 900;
 				}
@@ -106,19 +187,87 @@ public class Outfit {
 				if (dress >= 72) { // old special dresses started at index 72
 					dress += 900;
 				}
-				int head = (int) (code / Math.pow(100, 2) % 100);
+				int head = old_head;
 				if (head >= 78) { // old special heads started at index 78
 					head += 900;
 				}
-				int hair = (int) (code / Math.pow(100, 3) % 100);
-				if (hair == 99) { // jester hat
-					hair = 999;
+				int hair = old_hair;
+
+				// mapping old bodies to new system
+				final Map<Integer, List<Integer>> bodies_map = old_outfit_mapping.get("body");
+				for (final Integer idx: bodies_map.keySet()) {
+					if (bodies_map.get(idx).contains(old_body)) {
+						body = idx;
+						break;
+					}
+				}
+				// mapping old heads to new system
+				final Map<Integer, List<Integer>> heads_map = old_outfit_mapping.get("head");
+				for (final Integer idx: heads_map.keySet()) {
+					if (heads_map.get(idx).contains(old_head)) {
+						head = idx;
+						break;
+					}
+				}
+				// re-map some old dresses so they are as close to old outfit as possible
+				final Map<Integer, List<Integer>> dress_map = old_outfit_mapping.get("dress");
+				for (final Integer idx: dress_map.keySet()) {
+					if (dress_map.get(idx).contains(dress)) {
+						dress = idx;
+						break;
+					}
+				}
+				// mapping eyes from old heads
+				int eyes = 0;
+				final Map<Integer, List<Integer>> eyes_map = old_outfit_mapping.get("eyes");
+				for (final Integer idx: eyes_map.keySet()) {
+					if (eyes_map.get(idx).contains(old_head)) {
+						eyes = idx;
+						break;
+					}
+				}
+				// mapping mouth from old heads
+				int mouth = 0;
+				if (old_head == 15) {
+					mouth = 1;
+				} else if (old_head == 18) {
+					mouth = 2;
+				}
+				// mapping mask/glasses from old heads
+				int mask = 0;
+				final Map<Integer, List<Integer>> mask_map = old_outfit_mapping.get("mask");
+				for (final Integer idx: mask_map.keySet()) {
+					if (mask_map.get(idx).contains(old_head)) {
+						mask = idx;
+						break;
+					}
+				}
+				// re-map some old hairs so they are as close to old outfit as possible
+				final Map<Integer, List<Integer>> hair_map = old_outfit_mapping.get("hair");
+				for (final Integer idx: hair_map.keySet()) {
+					if (hair_map.get(idx).contains(old_hair)) {
+						hair = idx;
+						break;
+					}
+				}
+				// mapping hat from old hair
+				int hat = 0;
+				final Map<Integer, List<Integer>> hat_map = old_outfit_mapping.get("hat");
+				for (final Integer idx: hat_map.keySet()) {
+					if (hat_map.get(idx).contains(old_hair)) {
+						hat = idx;
+						break;
+					}
 				}
 
 				this.layers.put("body", body);
 				this.layers.put("dress", dress);
 				this.layers.put("head", head);
+				this.layers.put("mouth", mouth);
+				this.layers.put("eyes", eyes);
+				this.layers.put("mask", mask);
 				this.layers.put("hair", hair);
+				this.layers.put("hat", hat);
 				this.layers.put("detail", (int) (code / Math.pow(100, 4) % 100));
 			} catch (NumberFormatException e) {
 				LOGGER.warn("Can't parse outfit code, setting failsafe outfit.");
@@ -176,6 +325,10 @@ public class Outfit {
 		}
 
 		return layer;
+	}
+
+	public void setLayer(final String layerName, final Integer code) {
+		layers.put(layerName, code);
 	}
 
 	/**
@@ -436,7 +589,7 @@ public class Outfit {
 			&& (mouth == null || (mouth < Outfits.MOUTH_OUTFITS) && (mouth >= 0))
 			&& (detail == null || detail == 0)
 			&& (hair == null || (hair < Outfits.HAIR_OUTFITS) && (hair >= 0))
-		    && (head == null || (head < Outfits.HEAD_OUTFITS) && (head >= 0))
+			&& (head == null || (head < Outfits.HEAD_OUTFITS) && (head >= 0))
 			&& (dress == null || (dress < Outfits.CLOTHES_OUTFITS) && (dress >= 0))
 			&& (body == null || (body < Outfits.BODY_OUTFITS) && (body >= 0));
 	}
@@ -447,7 +600,13 @@ public class Outfit {
 	 * @return true if naked, false if dressed
 	 */
 	public boolean isNaked() {
-		Integer dress = layers.get("dress");
+		for (final String layerName: bodyCoveringIndexes.keySet()) {
+			if (bodyCoveringIndexes.get(layerName).contains(layers.get(layerName))) {
+				return false;
+			}
+		}
+
+		final Integer dress = layers.get("dress");
 
 		if (isCompatibleWithClothes()) {
 			return (dress == null) || dress.equals(0);
@@ -488,8 +647,7 @@ public class Outfit {
 	 * @return true if the outfit is compatible with clothes, false otherwise
 	 */
 	public boolean isCompatibleWithClothes() {
-		final Integer body = layers.get("body");
-		return body == null || !(body > 80 && body < 99);
+		return Outfits.isDressCompatibleBody(layers.get("body"));
 	}
 
 	@Override
@@ -508,5 +666,50 @@ public class Outfit {
 	@Override
 	public int hashCode() {
 		return this.getCode();
+	}
+
+	public String getData(Map<String, String> colors) {
+		if (colors == null) {
+			colors = EMPTY_MAP;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("body-" + getLayer("body") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("skin"), 0)));
+		sb.append("_dress-" + getLayer("dress") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("dress"), 0)));
+		sb.append("_head-" + getLayer("head") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("skin"), 0)));
+		sb.append("_mouth-" + getLayer("mouth") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("mouth"), 0)));
+		sb.append("_eyes-" + getLayer("eyes") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("eyes"), 0)));
+		sb.append("_mask-" + getLayer("mask") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("mask"), 0)));
+		sb.append("_hair-" + getLayer("hair") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("hair"), 0)));
+		sb.append("_hat-" + getLayer("hat") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("hat"), 0)));
+		sb.append("_detail-" + getLayer("detail") + "-");
+		sb.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("detail"), 0)));
+		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+
+		int idx = 0;
+		for (final String layer: Outfits.LAYER_NAMES) {
+			final Integer value = layers.get(layer);
+			if (value != null) {
+				if (idx > 0) {
+					sb.append(",");
+				}
+				sb.append(layer + "=" + layers.get(layer));
+				idx++;
+			}
+		}
+
+		return sb.toString();
 	}
 }

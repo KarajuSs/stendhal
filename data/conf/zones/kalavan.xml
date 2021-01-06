@@ -67,6 +67,14 @@
   </zone>
 
   <zone name="int_kalavan_castle_basement" file="interiors/kalavan/castle_basement.tmx">
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">kings_feast</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <configurator
       class-name="games.stendhal.server.maps.kalavan.castle.ItemsOnTable" />
     <configurator
@@ -83,6 +91,14 @@
   </zone>
 
   <zone name="int_kalavan_castle" file="interiors/kalavan/castle.tmx">
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">kings_feast</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <configurator
       class-name="games.stendhal.server.maps.kalavan.castle.PrincessNPC" />
     <configurator class-name="games.stendhal.server.maps.kalavan.castle.KingNPC" />
@@ -103,6 +119,14 @@
   </zone>
 
   <zone name="int_kalavan_castle_1" file="interiors/kalavan/castle_1.tmx">
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">kings_feast</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <portal x="31" y="36" ref="downstairs">
       <destination zone="int_kalavan_castle" ref="upstairs" />
     </portal>
@@ -112,6 +136,14 @@
   </zone>
 
   <zone name="int_kalavan_castle_2" file="interiors/kalavan/castle_2.tmx">
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">kings_feast</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <portal x="15" y="15" ref="entrance_left">
       <destination zone="0_kalavan_castle" ref="castle_2_entrance_left" />
       <attribute name="move.continuous" />
@@ -132,6 +164,14 @@
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying</parameter>
     </attributes>
+
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">town-03</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
 
     <!-- Portals -->
     <portal x="80" y="10" ref="house_1_entrance">
@@ -739,7 +779,7 @@
     <entity x="5" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -791,7 +831,7 @@
     <entity x="4" y="14">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1042,7 +1082,7 @@
     <entity x="10" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1102,7 +1142,7 @@
     <entity x="11" y="2">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1167,7 +1207,7 @@
     <entity x="4" y="14">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1225,7 +1265,7 @@
     <entity x="18" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1424,7 +1464,7 @@
     <entity x="3" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1490,7 +1530,7 @@
     <entity x="15" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1594,7 +1634,7 @@
     <entity x="15" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1732,7 +1772,7 @@
     <entity x="3" y="13">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1790,7 +1830,7 @@
     <entity x="3" y="13">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1848,7 +1888,7 @@
     <entity x="3" y="13">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1906,7 +1946,7 @@
     <entity x="3" y="13">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1958,7 +1998,7 @@
     <entity x="24" y="24">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -2016,7 +2056,7 @@
     <entity x="24" y="24">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -2035,6 +2075,15 @@
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying</parameter>
     </attributes>
+
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">town-03</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <configurator
       class-name="games.stendhal.server.maps.kalavan.citygardens.GardenerNPC" />
     <configurator

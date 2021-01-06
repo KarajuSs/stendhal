@@ -59,6 +59,7 @@ import games.stendhal.server.entity.item.Corpse;
 import games.stendhal.server.entity.item.Item;
 import games.stendhal.server.entity.item.StackableItem;
 import games.stendhal.server.entity.mapstuff.portal.Portal;
+import games.stendhal.server.entity.npc.TrainingDummy;
 import games.stendhal.server.entity.player.Player;
 import games.stendhal.server.entity.slot.EntitySlot;
 import games.stendhal.server.entity.slot.Slots;
@@ -74,6 +75,7 @@ import marauroa.common.game.RPAction;
 import marauroa.common.game.RPObject;
 import marauroa.common.game.RPSlot;
 import marauroa.common.game.SyntaxException;
+import marauroa.server.db.command.DBCommandPriority;
 import marauroa.server.db.command.DBCommandQueue;
 import marauroa.server.game.Statistics;
 import marauroa.server.game.db.DAORegister;
@@ -90,6 +92,7 @@ public abstract class RPEntity extends GuidedEntity {
 	private static final float CLOAK_DEF_MULTIPLIER = 1.5f;
 	private static final float ARMOR_DEF_MULTIPLIER = 2.0f;
 	private static final float SHIELD_DEF_MULTIPLIER = 4.0f;
+	private static final float RING_DEF_MULTIPLIER = 1.0f;
 	/**
 	 * To prevent players from gaining attack and defense experience by fighting
 	 * against very weak creatures, they only gain atk and def xp for so many
@@ -105,6 +108,8 @@ public abstract class RPEntity extends GuidedEntity {
 	private int atk_xp;
 	protected int def;
 	private int def_xp;
+	protected int ratk;
+	private int ratk_xp;
 	private int base_hp;
 	private int hp;
 	protected int lv_cap;
@@ -113,7 +118,6 @@ public abstract class RPEntity extends GuidedEntity {
 	private int mana;
 	private int base_mana;
 
-	protected boolean ignoreCollision;
 	private String deathSound;
 	private String bloodClass;
 
@@ -289,7 +293,6 @@ public abstract class RPEntity extends GuidedEntity {
 		damageReceived = new CounterMap<>(true);
 		enemiesThatGiveFightXP = new WeakHashMap<>();
 		totalDamageReceived = 0;
-		ignoreCollision = false;
 	}
 
 	public RPEntity() {
@@ -298,7 +301,6 @@ public abstract class RPEntity extends GuidedEntity {
 		damageReceived = new CounterMap<>(true);
 		enemiesThatGiveFightXP = new WeakHashMap<>();
 		totalDamageReceived = 0;
-		ignoreCollision = false;
 	}
 
 	/**
@@ -488,6 +490,11 @@ public abstract class RPEntity extends GuidedEntity {
 			setDefXpInternal(def_xp, false);
 		}
 
+		if (Testing.COMBAT && has("ratk_xp")) {
+			ratk_xp = getInt("ratk_xp");
+			setRatkXPInternal(ratk_xp, false);
+		}
+
 		if (has("base_hp")) {
 			base_hp = getInt("base_hp");
 		}
@@ -597,8 +604,13 @@ public abstract class RPEntity extends GuidedEntity {
 		 * XXX: atkStrength never used outside of debugger.
 		 */
 		final int atkStrength, sourceAtk;
-		atkStrength = this.getAtk();
-		sourceAtk = this.getCappedAtk();
+		if (Testing.COMBAT && isRanged) {
+			atkStrength = this.getRatk();
+			sourceAtk = this.getCappedRatk();
+		} else {
+			atkStrength = this.getAtk();
+			sourceAtk = this.getCappedAtk();
+		}
 
 		// Attacking
 		if (logger.isDebugEnabled() || Testing.DEBUG) {
@@ -775,7 +787,7 @@ public abstract class RPEntity extends GuidedEntity {
 		setAtkInternal(atk, true);
 	}
 
-	private void setAtkInternal(final int atk, boolean notify) {
+	protected void setAtkInternal(final int atk, boolean notify) {
 		this.atk = atk;
 		put("atk", atk);  // visible atk
 		if(notify) {
@@ -818,6 +830,16 @@ public abstract class RPEntity extends GuidedEntity {
 		}
 	}
 
+	/**
+	 * Adjust entity's ATK XP by specified amount.
+	 *
+	 * @param xp
+	 * 		Amount to add.
+	 */
+	public void addAtkXP(final int xp) {
+		setAtkXP(getAtkXP() + xp);
+	}
+
 	public int getAtkXP() {
 		return atk_xp;
 	}
@@ -833,7 +855,7 @@ public abstract class RPEntity extends GuidedEntity {
 		setDefInternal(def, true);
 	}
 
-	private void setDefInternal(final int def, boolean notify) {
+	protected void setDefInternal(final int def, boolean notify) {
 		this.def = def;
 		put("def", def);  // visible def
 		if(notify) {
@@ -876,6 +898,16 @@ public abstract class RPEntity extends GuidedEntity {
 		}
 	}
 
+	/**
+	 * Adjust entity's DEF XP by specified amount.
+	 *
+	 * @param xp
+	 * 		Amount to add.
+	 */
+	public void addDefXP(final int xp) {
+		setDefXP(getDefXP() + xp);
+	}
+
 	public int getDefXP() {
 		return def_xp;
 	}
@@ -886,6 +918,120 @@ public abstract class RPEntity extends GuidedEntity {
 	public void incDefXP() {
 		setDefXP(def_xp + 1);
 	}
+
+
+/* ### --- START RANGED --- ### */
+
+	/**
+	 * Set the value of the entity's ranged attack level.
+	 *
+	 * @param ratk
+	 * 		Integer value representing new ranged attack level
+	 */
+	public void setRatk(final int ratk) {
+		setRatkInternal(ratk, true);
+	}
+
+	/**
+	 * Set the entity's ranged attack level.
+	 *
+	 * @param ratk
+	 * 		Integer value representing new ranged attack level
+	 * @param notify
+	 * 		Update stat in real-time
+	 */
+	protected void setRatkInternal(final int ratk, boolean notify) {
+		this.ratk = ratk;
+		put("ratk", ratk);  // visible ratk
+		if(notify) {
+			this.updateModifiedAttributes();
+		}
+	}
+
+	/**
+	 * Gets the entity's current ranged attack level.
+	 *
+	 * @return
+	 * 		Integer value of ranged attack level
+	 */
+	public int getRatk() {
+		return this.ratk;
+	}
+
+	/**
+	 * gets the capped ranged attack level which prevents players from training
+	 * ratk way beyond what is reasonable for their level.
+	 *
+	 * @return
+	 * 		The maximum value player's ranged attack level can be at current
+	 * 		level
+	 */
+	public int getCappedRatk() {
+		return this.ratk;
+	}
+
+	/**
+	 * Sets the entity's ranged attack experience.
+	 *
+	 * @param ratkXP
+	 * 		Integer value of the target experience
+	 */
+	public void setRatkXP(final int ratkXP) {
+		setRatkXPInternal(ratkXP, true);
+	}
+
+	/**
+	 * Sets the entity's ranged attack experience.
+	 *
+	 * @param ratkXP
+	 * 		Integer value of the target experience
+	 * @param notify
+	 * 		Update ranged attack experience in real-time
+	 */
+	protected void setRatkXPInternal(final int ratkXP, boolean notify) {
+		this.ratk_xp = ratkXP;
+		put("ratk_xp", ratk_xp);
+
+		// Handle level changes
+		final int newLevel = Level.getLevel(ratk_xp);
+		final int levels = newLevel - (this.ratk - 10);
+
+		// In case we level up several levels at a single time.
+		if (levels != 0) {
+			setRatkInternal(this.ratk + levels, notify);
+			new GameEvent(getName(), "ratk", Integer.toString(this.ratk)).raise();
+		}
+	}
+
+	/**
+	 * Adjust entity's RATK XP by specified amount.
+	 *
+	 * @param xp
+	 * 		Amount to add.
+	 */
+	public void addRatkXP(final int xp) {
+		setRatkXP(getRatkXP() + xp);
+	}
+
+	/**
+	 * Get's the entity's current ranged attack experience.
+	 *
+	 * @return
+	 * 		Integer representation of current experience
+	 */
+	public int getRatkXP() {
+		return ratk_xp;
+	}
+
+	/**
+	 * Increase ranged XP by 1.
+	 */
+	public void incRatkXP() {
+		setRatkXP(ratk_xp + 1);
+	}
+
+/* ### --- END RANGED --- ### */
+
 
 	/**
 	 * Set the base and current HP.
@@ -1102,6 +1248,20 @@ public abstract class RPEntity extends GuidedEntity {
 		return Nature.CUT;
 	}
 
+	/**
+	 * Get the nature of the damage the entity inflicts in ranged attacks.
+	 *
+	 * @return type of damage
+	 */
+	protected Nature getRangedDamageType() {
+		/*
+		 * Default to the same as the base damage type. Entities needing more
+		 * complicated behavior (ie. fire breathing dragons) should override the
+		 * method.
+		 */
+		return getDamageType();
+	}
+
 	/***************************************************************************
 	 * * Attack handling code. * *
 	 **************************************************************************/
@@ -1146,6 +1306,11 @@ public abstract class RPEntity extends GuidedEntity {
 	}
 
 	public boolean getsFightXpFrom(final RPEntity enemy) {
+		if (enemy instanceof TrainingDummy) {
+			// training dummies always give fight XP
+			return true;
+		}
+
 		final Integer turnWhenLastDamaged = enemiesThatGiveFightXP.get(enemy);
 		if (turnWhenLastDamaged == null) {
 			return false;
@@ -1640,7 +1805,7 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 			new GameEvent(killerName, "killed", this.getName(), killLog.entityToType(killer), killLog.entityToType(this)).raise();
 		}
 
-		DBCommandQueue.get().enqueue(new LogKillEventCommand(this, killer));
+		DBCommandQueue.get().enqueue(new LogKillEventCommand(this, killer), DBCommandPriority.LOW);
 
 		die(killer, remove);
 	}
@@ -2566,7 +2731,22 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 	public String describe() {
 		String text = super.describe();
 		if (getLevel() > 0) {
-			text += " It is level " + getLevel() + ".";
+			boolean showLevel = true;
+			if (this instanceof Creature) {
+				/**
+				 * Hide level information of chess pieces.
+				 *
+				 * Don't call "Creature.isAbnormal" method here since it also checks "rare" attribute.
+				 */
+				if (((Creature) this).getAIProfiles().containsKey("abnormal") &&
+						(this.getName().startsWith("chaos") || this.getName().startsWith("madaram"))) {
+					showLevel = false;
+				}
+			}
+
+			if (showLevel) {
+				text += " It is level " + getLevel() + ".";
+			}
 		}
 
 		return text;
@@ -2596,14 +2776,67 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 		// does nothing in this implementation.
 	}
 
+	/**
+	 * Retrieves total ATK value of held weapons.
+	 */
 	public float getItemAtk() {
 		int weapon = 0;
+		int ring = 0;
+
 		final List<Item> weapons = getWeapons();
 		for (final Item weaponItem : weapons) {
 			weapon += weaponItem.getAttack();
 		}
 
-		return weapon;
+		// calculate ammo when not using RATK stat
+		if (!Testing.COMBAT && weapons.size() > 0) {
+			if (getWeapons().get(0).isOfClass("ranged")) {
+				weapon += getAmmoAtk();
+			}
+		}
+
+		if (hasRing()) {
+			ring = getRing().getAttack();
+		}
+
+		return weapon + ring;
+	}
+
+	/**
+	 * Retrieves total range attack value of held weapon & ammunition.
+	 */
+	public float getItemRatk() {
+		float ratk = 0;
+		final List<Item> weapons = getWeapons();
+
+		if (weapons.size() > 0) {
+			final Item held = getWeapons().get(0);
+			ratk += held.getRangedAttack();
+
+			if (held.isOfClass("ranged")) {
+				ratk += getAmmoAtk();
+			}
+		}
+
+		return ratk;
+	}
+
+	/**
+	 * Retrieves ATK or RATK (depending on testing.combat system property) value of equipped ammunition.
+	 */
+	private float getAmmoAtk() {
+		float ammo = 0;
+
+		final StackableItem ammoItem = getAmmunition();
+		if (ammoItem != null) {
+			if (Testing.COMBAT) {
+				ammo = ammoItem.getRangedAttack();
+			} else {
+				ammo = ammoItem.getAttack();
+			}
+		}
+
+		return ammo;
 	}
 
 	public float getItemDef() {
@@ -2614,6 +2847,7 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 		int boots = 0;
 		int cloak = 0;
 		int weapon = 0;
+		int ring = 0;
 
 		Item item;
 
@@ -2647,6 +2881,11 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 			cloak = (int) (item.getDefense() / getItemLevelModifier(item));
 		}
 
+		if (hasRing()) {
+			item = getRing();
+			ring = (int) (item.getDefense() / getItemLevelModifier(item));
+		}
+
 		final List<Item> targetWeapons = getWeapons();
 		for (final Item weaponItem : targetWeapons) {
 			weapon += weaponItem.getDefense() / getItemLevelModifier(weaponItem);
@@ -2655,7 +2894,7 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 		return SHIELD_DEF_MULTIPLIER * shield + ARMOR_DEF_MULTIPLIER * armor
 				+ CLOAK_DEF_MULTIPLIER * cloak + HELMET_DEF_MULTIPLIER * helmet
 				+ LEG_DEF_MULTIPLIER * legs + BOOTS_DEF_MULTIPLIER * boots
-				+ WEAPON_DEF_MULTIPLIER * weapon;
+				+ WEAPON_DEF_MULTIPLIER * weapon + RING_DEF_MULTIPLIER * ring;
 	}
 
 	/**
@@ -2692,6 +2931,9 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 	 */
 	public void updateItemAtkDef() {
 		put("atk_item", ((int) getItemAtk()));
+		if (Testing.COMBAT) {
+			put("ratk_item", ((int) getItemRatk()));
+		}
 		put("def_item", ((int) getItemDef()));
 		notifyWorldAboutChanges();
 	}
@@ -2819,7 +3061,18 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 		int roll = Rand.roll1D20();
 		final int defenderDEF = defender.getCappedDef();
 
-		final int attackerATK = this.getCappedAtk();
+		// Check if attacking from distance
+		boolean usesRanged = false;
+		if (!this.nextTo(defender)) {
+			usesRanged = true;
+		}
+
+		final int attackerATK;
+		if (Testing.COMBAT && usesRanged) {
+			attackerATK = this.getCappedRatk(); // player is using ranged weapon
+		} else {
+			attackerATK = this.getCappedAtk(); // player is using hand-to-hand
+		}
 
 		/*
 		 * Use some karma unless attacker is much stronger than defender, in
@@ -2940,11 +3193,24 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 		defender.rememberAttacker(this);
 
 		final int maxRange = getMaxRangeForArcher();
+		/*
+		 * The second part (damage type check) ensures that normal archers need
+		 * distance attack modifiers for melee, but creatures with special
+		 * ranged attacks (dragons) pay the price only when using their ranged
+		 * powers (yes, it's a bit of a hack).
+		 */
+		boolean isRanged = ((maxRange > 0) && canDoRangeAttack(defender, maxRange))
+			&& (((getDamageType() == getRangedDamageType()) || squaredDistance(defender) > 0));
 
-		boolean isRanged = ((maxRange > 0) && canDoRangeAttack(defender, maxRange)) && (squaredDistance(defender) > 0);
-
-		Nature nature = getDamageType();
-		float itemAtk = getItemAtk();
+		Nature nature;
+		final float itemAtk;
+		if (isRanged) {
+			nature = getRangedDamageType();
+			itemAtk = getItemRatk();
+		} else {
+			nature = getDamageType();
+			itemAtk = getItemAtk();
+		}
 
 		// Try to inflict a status effect
 		for (StatusAttacker statusAttacker : statusAttackers) {
@@ -3239,6 +3505,23 @@ System.out.printf("  drop: %2d %2d\n", attackerRoll, defenderRoll);
 	 * @return a predicate for matching the name
 	 */
 	private Predicate<Item> nameMatches(String name) {
-		return it -> name.equals(it.getName());
+		return it -> name.equalsIgnoreCase(it.getName());
+	}
+
+	/**
+	 * Sets the attribute to define the shadow that the client should use.
+	 *
+	 * @param st
+	 * 		String name of the shadow to use.
+	 */
+	public void setShadowStyle(final String st) {
+		if (st == null || st.equals("none")) {
+			remove("shadow_style");
+			put("no_shadow", "");
+			return;
+		}
+
+		put("shadow_style", st);
+		remove("no_shadow");
 	}
 }

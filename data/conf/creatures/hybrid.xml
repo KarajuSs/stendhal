@@ -17,7 +17,7 @@
     <level value="350"/>
     <experience value="430000"/>
     <respawn value="70000"/>
-    <corpse name="animal_2x2" harmless="spiderweb_2x2" width="2" height="2"/>
+    <corpse name="animal_2x2" harmless="spiderweb_2x2"/>
     <drops>
       <item value="money" quantity="[2000,10000]" probability="80.0"/>
       <item value="silk gland" quantity="[1,3]" probability="20.0"/>
@@ -253,6 +253,11 @@
       <says>
         <sound value="scream-fem-2" />
         <sound value="rattlesnake-1" />
+        <sound value="naga_hiss-01" />
+        <sound value="naga_hiss-02" />
+        <sound value="naga_hiss-03" />
+        <sound value="naga_hiss-04" />
+        <sound value="naga_hiss-05" />
       </says>
       <profile name="poisonous" params="5,greater poison"/>
       <profile name="brave"/>
@@ -287,6 +292,11 @@
       <says>
         <sound value="scream-fem-2" />
         <sound value="rattlesnake-1" />
+        <sound value="naga_hiss-01" />
+        <sound value="naga_hiss-02" />
+        <sound value="naga_hiss-03" />
+        <sound value="naga_hiss-04" />
+        <sound value="naga_hiss-05" />
       </says>
       <profile name="poisonous" params="5,greater poison"/>
       <profile name="brave"/>
@@ -323,6 +333,11 @@
       <says>
         <sound value="scream-fem-2" />
         <sound value="rattlesnake-1" />
+        <sound value="naga_hiss-01" />
+        <sound value="naga_hiss-02" />
+        <sound value="naga_hiss-03" />
+        <sound value="naga_hiss-04" />
+        <sound value="naga_hiss-05" />
       </says>
       <profile name="poisonous" params="5,greater poison"/>
       <profile name="brave"/>
@@ -345,7 +360,7 @@
     <level value="112"/>
     <experience value="14750"/>
     <respawn value="3400"/>
-    <corpse name="humanoid_2x2" width="2" height="2" />
+    <corpse name="humanoid_2x2"/>
     <drops>
       <item value="money" quantity="[5,60]" probability="100.0" />
       <item value="medicinal ring" quantity="[1,1]" probability="1.5" />
@@ -354,8 +369,9 @@
     </equips>
     <ai>
       <says>
-        <sound value="scream-fem-2" />
         <sound value="rattlesnake-1" />
+        <sound value="lamia_hiss-01" />
+        <sound value="lamia_hiss-02" />
       </says>
       <profile name="poisonous" params="5,greater poison"/>
       <profile name="brave"/>
@@ -638,7 +654,7 @@
     <level value="170"/>
     <experience value="50800"/>
     <respawn value="3000"/>
-    <corpse name="humanoid_2x2" width="2" height="2"/>
+    <corpse name="humanoid_2x2"/>
     <drops>
       <item value="money" quantity="[30,100]" probability="100.0" />
       <item value="xeno shield" quantity="[1,1]" probability="1.0" />

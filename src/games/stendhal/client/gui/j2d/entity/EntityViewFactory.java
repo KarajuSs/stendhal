@@ -155,6 +155,7 @@ public class EntityViewFactory {
 		register("item", "special", "mithril clasp", Item2DView.class);
 		register("item", null, null, Item2DView.class);
 		register("npc", null, null, NPC2DView.class);
+		register("training_dummy", null, null, NPC2DView.class);
 
 		register("cat", null, null, Pet2DView.class);
 		register("pet", null, null, Pet2DView.class);
@@ -175,7 +176,6 @@ public class EntityViewFactory {
 		register("blackboard", null, null, Sign2DView.class);
 		register("rented_sign", null, null, Sign2DView.class);
 		register("shop_sign", null, null, ShopSign2DView.class);
-		register("tradecentersign", null, null, TradeCenterSign2DView.class);
 
 		register("item", "jewellery", null, StackableItem2DView.class);
 		register("item", "flower", null, StackableItem2DView.class);
@@ -201,10 +201,12 @@ public class EntityViewFactory {
 		register("item", "tool", "scrolleraser", UseableItem2DView.class);
 
 		register("item", "ring", null, Ring2DView.class);
+		register("item", "ring", "emerald-ring", BreakableRing2DView.class);
 		register("item", "ring", "wedding", UseableRing2DView.class);
 
 		register("useable_entity", null, null, UseableEntity2DView.class);
 
+		register("flyover", null, null, FlyOverArea2DView.class);
 		register("wall", null, null, Wall2DView.class);
 		register("walkblocker", null, null, WalkBlocker2DView.class);
 		register("well_source", null, null, UseableEntity2DView.class);

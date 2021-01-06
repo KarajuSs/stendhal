@@ -8,6 +8,8 @@ package games.stendhal.server.entity;
 
 import static games.stendhal.common.constants.Actions.MOVE_CONTINUOUS;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.log4j.Logger;
@@ -48,7 +50,6 @@ public abstract class ActiveEntity extends Entity {
 	private int stepsTaken;
 
 	/** Allows entity to walk through collision areas */
-	private boolean ignoreCollision;
 
 	/**
 	 * Create an active entity.
@@ -265,7 +266,7 @@ public abstract class ActiveEntity extends Entity {
 		return getDirectionToward(entity.getArea());
 	}
 
-	final Direction getDirectionToward(final Rectangle2D area) {
+	public final Direction getDirectionToward(final Rectangle2D area) {
 		return Direction.getAreaDirectionTowardsArea(getArea(), area);
 	}
 
@@ -498,7 +499,7 @@ public abstract class ActiveEntity extends Entity {
 	 * @return ignoreCollision
 	 */
 	public boolean ignoresCollision() {
-		return ignoreCollision;
+		return has("ignore_collision");
 	}
 
 	/**
@@ -507,7 +508,6 @@ public abstract class ActiveEntity extends Entity {
 	 * @param ignore
 	 */
 	public void setIgnoresCollision(boolean ignore) {
-		ignoreCollision = ignore;
 		if (ignore) {
 			put("ignore_collision", "");
 		} else {
@@ -515,4 +515,38 @@ public abstract class ActiveEntity extends Entity {
 		}
 	}
 
+	/**
+	 * Predict if entity can move to a position.
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean canMoveTo(final int x, final int y) {
+		if (ignoresCollision()) {
+			return true;
+		}
+
+		final StendhalRPZone zone = getZone();
+		final Rectangle2D area = new Rectangle.Double();
+		area.setRect(x, y, getWidth(), getHeight());
+
+		final boolean collidesObjects = zone.collidesObjects(this, area) && getResistance() > 95;
+
+		return !zone.collides(area) && !collidesObjects;
+	}
+
+	/**
+	 * Predict if entity can move to a position.
+	 *
+	 * @param pos
+	 * @return
+	 */
+	public boolean canMoveTo(final Point pos) {
+		if (pos == null) {
+			return false;
+		}
+
+		return canMoveTo(pos.x, pos.y);
+	}
 }

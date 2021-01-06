@@ -1,5 +1,5 @@
 /***************************************************************************
- *                    (C) Copyright 2003-2009 - Stendhal                   *
+ *                    (C) Copyright 2003-2020 - Stendhal                   *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -13,7 +13,6 @@ package games.stendhal.server.core.engine.db;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,22 +84,6 @@ public class StendhalWebsiteDAO {
 	}
 
 	/**
-	 * sets the online status of a particular player
-	 *
-	 * @param playerName name of player
-	 * @param online true, if the player is online; false otherwise
-	 */
-	public void setOnlineStatus(final String playerName, final boolean online) {
-		DBTransaction transaction = TransactionPool.get().beginWork();
-		try {
-			setOnlineStatus(transaction, playerName, online);
-			TransactionPool.get().commit(transaction);
-		} catch (SQLException e) {
-			TransactionPool.get().rollback(transaction);
-		}
-	}
-
-	/**
 	 * logs a trade event
 	 *
 	 * @param transaction DBTransaction
@@ -110,11 +93,13 @@ public class StendhalWebsiteDAO {
 	 * @param quantity quantity
 	 * @param price    price
 	 * @param stats    description of item
+	 * @param timestamp timestamp
 	 * @throws SQLException in case of an database error
 	 */
-	public void logTradeEvent(final DBTransaction transaction, String charname, String itemname, int itemid, int quantity, int price, String stats) throws SQLException {
-		String sql = "INSERT INTO trade(charname, itemname, itemid, quantity, price, stats) "
-				+ " VALUES ('[charname]', '[itemname]', [itemid], [quantity], [price], '[stats]')";
+	public void logTradeEvent(final DBTransaction transaction, String charname, String itemname, int itemid, 
+			int quantity, int price, String stats, Timestamp timestamp) throws SQLException {
+		String sql = "INSERT INTO trade(charname, itemname, itemid, quantity, price, stats, timedate) "
+				+ " VALUES ('[charname]', '[itemname]', [itemid], [quantity], [price], '[stats]', '[timedate]')";
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("charname", charname);
 		params.put("itemname", itemname);
@@ -122,6 +107,7 @@ public class StendhalWebsiteDAO {
 		params.put("quantity", quantity);
 		params.put("price", price);
 		params.put("stats", stats);
+		params.put("timedate", timestamp);
 		transaction.execute(sql, params);
 	}
 
@@ -130,13 +116,14 @@ public class StendhalWebsiteDAO {
 	 *
 	 * @param transaction DBTransaction
 	 * @param player Player
+	 * @param timestamp timestamp
 	 * @return number of updates rows
 	 * @throws SQLException in case of an database error
 	 */
-	protected int updateCharStats(final DBTransaction transaction, final Player player) throws SQLException {
+	protected int updateCharStats(final DBTransaction transaction, final Player player, Timestamp timestamp) throws SQLException {
 		final String query = "UPDATE character_stats SET "
 			+ " admin=[admin], sentence='[sentence]', age=[age], level=[level],"
-			+ " outfit=[outfit], outfit_colors='[outfit_colors]', xp=[xp], money='[money]',"
+			+ " outfit=[outfit], outfit_colors='[outfit_colors]', outfit_layers='[outfit_layers]', xp=[xp], money='[money]',"
 			+ " married='[married]', atk='[atk]', def='[def]', hp='[hp]', karma='[karma]',"
 			+ " head='[head]', armor='[armor]', lhand='[lhand]', rhand='[rhand]',"
 			+ " legs='[legs]', feet='[feet]', cloak='[cloak]', lastseen='[lastseen]',"
@@ -144,6 +131,7 @@ public class StendhalWebsiteDAO {
 			+ " WHERE name='[name]'";
 
 		Map<String, Object> params = getParamsFromPlayer(player);
+		params.put("lastseen", timestamp);
 		logger.debug("storeCharacter is running: " + query);
 		final int count = transaction.execute(query, params);
 		return count;
@@ -163,6 +151,7 @@ public class StendhalWebsiteDAO {
 		params.put("level", player.getLevel());
 		params.put("outfit", player.getOutfit().getCode());
 		params.put("outfit_colors", getOutfitColors(player));
+		params.put("outfit_layers", player.getOutfit().getData(player.getOutfitColors()));
 		params.put("xp", player.getXP());
 		params.put("money", player.getTotalNumberOf("money"));
 		params.put("married", extractSpouseOrNull(player));
@@ -185,7 +174,6 @@ public class StendhalWebsiteDAO {
 			zoneName = zone.getName();
 		}
 		params.put("zone", zoneName);
-		params.put("lastseen", new Timestamp(new Date().getTime()));
 		return params;
 	}
 
@@ -197,18 +185,19 @@ public class StendhalWebsiteDAO {
 	 * @param player Player
 	 * @throws SQLException in case of an database error
 	 */
-	protected void insertIntoCharStats(final DBTransaction transaction, final Player player) throws SQLException {
+	protected void insertIntoCharStats(final DBTransaction transaction, final Player player, Timestamp timestamp) throws SQLException {
 		final String query = "INSERT INTO character_stats"
 			+ " (name, admin, sentence, age, level,"
-			+ " outfit, outfit_colors, xp, money, married, atk, def, hp,"
+			+ " outfit, outfit_colors, outfit_layers, xp, money, married, atk, def, hp,"
 			+ " karma, head, armor, lhand, rhand,"
 			+ " legs, feet, cloak, finger, zone, lastseen)"
 			+ " VALUES ('[name]', '[admin]', '[sentence]', '[age]', '[level]',"
-			+ " '[outfit]', '[outfit_colors]', '[xp]', '[money]', '[married]',"
+			+ " '[outfit]', '[outfit_colors]', '[outfit_layers]', '[xp]', '[money]', '[married]',"
 			+ " '[atk]', '[atk]', '[hp]', '[karma]', '[head]', '[armor]',"
 			+ " '[lhand]', '[rhand]', '[legs]', '[feet]', '[cloak]', '[finger]',"
 			+ " '[zone]', '[lastseen]')";
 		Map<String, Object> params = getParamsFromPlayer(player);
+		params.put("lastseen", timestamp);
 		logger.debug("storeCharacter is running: " + query);
 		transaction.execute(query, params);
 	}
@@ -274,7 +263,7 @@ public class StendhalWebsiteDAO {
 		res.append("_");
 		res.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("dress"), 0)));
 		res.append("_");
-		res.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("base"), 0)));
+		res.append(Integer.toHexString(MathHelper.parseIntDefault(colors.get("skin"), 0)));
 		return res.toString();
 	}
 }

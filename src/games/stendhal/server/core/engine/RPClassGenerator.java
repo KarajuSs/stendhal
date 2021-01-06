@@ -31,6 +31,7 @@ import games.stendhal.server.entity.mapstuff.ExpirationTracker;
 import games.stendhal.server.entity.mapstuff.Fire;
 import games.stendhal.server.entity.mapstuff.WeatherEntity;
 import games.stendhal.server.entity.mapstuff.area.AreaEntity;
+import games.stendhal.server.entity.mapstuff.area.FlyOverArea;
 import games.stendhal.server.entity.mapstuff.area.WalkBlocker;
 import games.stendhal.server.entity.mapstuff.area.Wall;
 import games.stendhal.server.entity.mapstuff.block.Block;
@@ -54,12 +55,14 @@ import games.stendhal.server.entity.mapstuff.useable.UseableEntity;
 import games.stendhal.server.entity.mapstuff.useable.WaterSpringSource;
 import games.stendhal.server.entity.mapstuff.useable.WellSource;
 import games.stendhal.server.entity.npc.NPC;
+import games.stendhal.server.entity.npc.TrainingDummy;
 import games.stendhal.server.entity.player.Player;
 import games.stendhal.server.entity.spell.Spell;
 import games.stendhal.server.entity.trade.Earning;
 import games.stendhal.server.entity.trade.Market;
 import games.stendhal.server.entity.trade.Offer;
 import games.stendhal.server.events.AttackEvent;
+import games.stendhal.server.events.BestiaryEvent;
 import games.stendhal.server.events.BuddyLoginEvent;
 import games.stendhal.server.events.BuddyLogoutEvent;
 import games.stendhal.server.events.ExamineEvent;
@@ -74,6 +77,7 @@ import games.stendhal.server.events.PrivateTextEvent;
 import games.stendhal.server.events.ProgressStatusEvent;
 import games.stendhal.server.events.ReachedAchievementEvent;
 import games.stendhal.server.events.ShowItemListEvent;
+import games.stendhal.server.events.ShowOutfitListEvent;
 import games.stendhal.server.events.SoundEvent;
 import games.stendhal.server.events.TextEvent;
 import games.stendhal.server.events.TradeStateChangeEvent;
@@ -176,6 +180,9 @@ public class RPClassGenerator {
 		if (!RPClass.hasRPClass("walkblocker")) {
 			WalkBlocker.generateRPClass();
 		}
+		if (!RPClass.hasRPClass("flyover")) {
+			FlyOverArea.generateRPClass();
+		}
 		if (!RPClass.hasRPClass("house_portal")) {
 			HousePortal.generateRPClass();
 		}
@@ -206,6 +213,9 @@ public class RPClassGenerator {
 		// NPC sub-classes
 		if (!RPClass.hasRPClass("creature")) {
 			Creature.generateRPClass();
+		}
+		if (!RPClass.hasRPClass(TrainingDummy.RPCLASS_NAME)) {
+			TrainingDummy.generateRPClass();
 		}
 
 		// Creature sub-classes
@@ -318,6 +328,14 @@ public class RPClassGenerator {
 
 		if (!RPClass.hasRPClass(Events.GLOBAL_VISUAL)) {
 			GlobalVisualEffectEvent.generateRPClass();
+		}
+
+		if (!RPClass.hasRPClass(Events.BESTIARY)) {
+			BestiaryEvent.generateRPClass();
+		}
+
+		if (!RPClass.hasRPClass(Events.OUTFIT_LIST)) {
+			ShowOutfitListEvent.generateRPClass();
 		}
 
 		if (!RPClass.hasRPClass("action")) {

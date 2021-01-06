@@ -13,6 +13,7 @@
 package games.stendhal.client;
 
 
+import static games.stendhal.common.Outfits.HATS_NO_HAIR;
 import static games.stendhal.common.Outfits.LAYER_NAMES;
 import static games.stendhal.common.Outfits.RECOLORABLE_OUTFIT_PARTS;
 
@@ -94,10 +95,16 @@ public class OutfitStore {
 
 		ImageSprite sprite;
 
-		// TODO: draw transparent sprite for negative body indexes
+		Sprite layer;
 
 		// Body layer
-		Sprite layer = getLayerSprite("body", layer_map.get("body"), color);
+		final int bodyIndex = layer_map.get("body");
+		if (bodyIndex < 0) {
+			layer = store.getEmptySprite(48 * 3, 64 * 4);
+		} else {
+			layer = getLayerSprite("body", layer_map.get("body"), color);
+		}
+
 		if (layer == null) {
 			throw new IllegalArgumentException(
 					"No body image found for outfit: " + layer_map.get("body"));
@@ -107,6 +114,11 @@ public class OutfitStore {
 		final Graphics g = sprite.getGraphics();
 
 		for (String lname: LAYER_NAMES) {
+			// hair is not drawn under certain hats/helmets
+			if (lname.equals("hair") && HATS_NO_HAIR.contains(layer_map.get("hat"))) {
+				continue;
+			}
+
 			if (RECOLORABLE_OUTFIT_PARTS.contains(lname)) {
 				layer = getLayerSprite(lname, layer_map.get(lname), color);
 			} else {
@@ -242,7 +254,12 @@ public class OutfitStore {
 	 */
 	private Sprite getOutfit(final String strcode, final OutfitColor color) {
 		// Use the normalized string for the reference
-		final String reference = buildReference(strcode, color.toString());
+		String colorString = "null";
+		if (color != null) {
+			colorString = color.toString();
+		}
+
+		final String reference = buildReference(strcode, colorString);
 		return getOutfit(strcode, color, reference);
 	}
 

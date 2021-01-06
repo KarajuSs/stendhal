@@ -19,6 +19,9 @@ stendhal.ui = stendhal.ui || {};
  * @constructor
  */
 stendhal.ui.Popup = function(title, content, x, y) {
+
+	const closeSound = "click-1";
+
 	this.close = function() {
 		if (that.onClose) {
 			that.onClose.call(that);
@@ -36,6 +39,8 @@ stendhal.ui.Popup = function(title, content, x, y) {
 	function onClose(e) {
 		that.close();
 		e.preventDefault();
+
+		stendhal.ui.sound.playGlobalizedEffect(closeSound);
 	}
 
 	/**
@@ -101,6 +106,17 @@ stendhal.ui.Menu = function(entity, x, y) {
 			title: "(*) Inspect",
 			action: function(entity) {
 				console.log(entity);
+			}
+		});
+		// FIXME: cannot destroy items equipped in player's inventory slots
+		actions.push({
+			title: "(*) Destroy",
+			action: function(entity) {
+				var action = {
+					"type": "destroy",
+					"target": "#" + entity["id"],
+				}
+				marauroa.clientFramework.sendAction(action);
 			}
 		});
 		actions.push({

@@ -25,6 +25,14 @@
       <parameter name="weather">varying</parameter>
     </attributes>
 
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">town-02</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
 	<!-- NPCs Level 0 -->
     <configurator class-name="games.stendhal.server.maps.kirdneh.city.GossipNPC" />
     <configurator class-name="games.stendhal.server.maps.kirdneh.city.MummyNPC" />
@@ -32,7 +40,7 @@
     <configurator class-name="games.stendhal.server.maps.kirdneh.city.FlowerSellerNPC" />
     <configurator class-name="games.stendhal.server.maps.kirdneh.city.KirdnehArmorGuyNPC" />
     <configurator class-name="games.stendhal.server.maps.kirdneh.city.KirdnehFishyMarketNPC" />
-    <configurator class-name="games.stendhal.server.maps.kirdneh.city.KirdnehMemorySorceressNPC" />
+    <!--<configurator class-name="games.stendhal.server.maps.kirdneh.city.KirdnehAnxiousSorceressNPC" />-->
 
     <entity x="65" y="94">
       <implementation
@@ -337,7 +345,7 @@
     <entity x="3" y="16">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -491,7 +499,7 @@
     <entity x="20" y="12">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -523,7 +531,7 @@
     <entity x="10" y="16">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -592,7 +600,7 @@
     <entity x="14" y="5">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -857,7 +865,7 @@
     <entity x="35" y="12">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1471,7 +1479,7 @@
     <entity x="14" y="5">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -1654,6 +1662,15 @@
   </zone>
 
   <zone name="int_kirdneh_inn" file="interiors/kirdneh/inn.tmx">
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">spinning_tavern</parameter>
+        <parameter name="volume">127</parameter>
+      </implementation>
+    </entity>
+
     <configurator class-name="games.stendhal.server.maps.kirdneh.inn.HealerNPC" />
     <configurator class-name="games.stendhal.server.maps.kirdneh.inn.BarmanNPC" />
     <configurator class-name="games.stendhal.server.maps.kirdneh.inn.ItemsOnTable" />

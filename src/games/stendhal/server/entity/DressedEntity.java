@@ -13,6 +13,7 @@ package games.stendhal.server.entity;
 
 import static games.stendhal.common.Outfits.RECOLORABLE_OUTFIT_PARTS;
 
+import java.awt.Color;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -105,6 +106,7 @@ public abstract class DressedEntity extends RPEntity {
 		return getMap("outfit_colors");
 	}
 
+
 	/**
 	 * Sets this entity's outfit.
 	 *
@@ -192,8 +194,6 @@ public abstract class DressedEntity extends RPEntity {
 		sb.append("detail=" + newOutfit.getLayer("detail"));
 
 		put("outfit_ext", sb.toString());
-		// FIXME: can't update "outfit" attribute without affecting "outfit_ext" (see: overridden method DressedEntity.put)
-		//put("outfit", newOutfit.getCode());
 		notifyWorldAboutChanges();
 	}
 
@@ -232,35 +232,93 @@ public abstract class DressedEntity extends RPEntity {
 		setOutfit(new Outfit(layers), temporary);
 	}
 
+	/**
+	 * Sets the entity's outfit using a string code. E.g.:
+	 * 		body=1,hair=5,dress=13
+	 *
+	 * @param strcode
+	 */
+	public void setOutfit(final String strcode) {
+		setOutfit(new Outfit(strcode), false);
+	}
+
+	/**
+	 * Sets the entity's outfit using a string code. E.g.:
+	 * 		body=1,hair=5,dress=13
+	 *
+	 * @param strcode
+	 * 		String code representing outfit.
+	 * @param temporary
+	 * 		If true, the original outfit will be stored so that it can be
+	 * 		restored later.
+	 */
 	public void setOutfit(final String strcode, final boolean temporary) {
 		setOutfit(new Outfit(strcode), temporary);
-	}
-
-	public void setOutfit(final String strcode) {
-		setOutfit(strcode, false);
-	}
-
-	// Hack to preserve detail layer
-	public void setOutfitWithDetail(final Outfit outfit) {
-		setOutfitWithDetail(outfit, false);
 	}
 
 	// Hack to preserve detail layer
 	public void setOutfitWithDetail(final Outfit outfit, final boolean temporary) {
 		// preserve detail layer
-		final int detailCode = getOutfit().getLayer("detail");
-
-		// set the new outfit
-		setOutfit(outfit, temporary);
-
-		if (detailCode > 0) {
-			// get current outfit code
-			final int outfitCode = outfit.getCode() + (detailCode * 100000000);
-
-			// re-add detail
-			put("outfit", outfitCode);
-			notifyWorldAboutChanges();
+		int oldDetailCode = getOutfit().getLayer("detail");
+		int newDetailCode = outfit.getLayer("detail");
+		if (oldDetailCode > 0 && newDetailCode == 0) {
+			outfit.setLayer("detail", oldDetailCode);
 		}
+		setOutfit(outfit, temporary);
+	}
+
+	/**
+	 * Set color for single outfit layer.
+	 *
+	 * @param part
+	 * 		Layer to be colored.
+	 * @param color
+	 * 		<code>Integer</code> value color to use.
+	 */
+	public void setOutfitColor(final String part, final int color) {
+		put("outfit_colors", part, color);
+	}
+
+	/**
+	 * Set color for single outfit layer.
+	 *
+	 * @param part
+	 * 		Layer to be colored.
+	 * @param color
+	 * 		<code>Color</code> value color to use.
+	 */
+	public void setOutfitColor(final String part, final Color color) {
+		setOutfitColor(part, color.getRGB());
+	}
+
+	/**
+	 * Set colors for the entire outfit.
+	 *
+	 * @param parts
+	 * 		<code>Map</code> of layers & colors (<code>Integer</code>).
+	 */
+	public void setOutfitColors(final Map<String, Integer> parts) {
+		remove("outfit_colors"); // clear old colors
+		for (final String key: parts.keySet()) {
+			put("outfit_colors", key, parts.get(key));
+		}
+	}
+
+	/**
+	 * Checks if the entity is not wearing clothes.
+	 */
+	public boolean isNaked() {
+		return getOutfit().isNaked();
+	}
+
+	/**
+	 * Unset color of a single layer.
+	 *
+	 * @param part
+	 * 		Layer to be unset.
+	 */
+	public void unsetOutfitColor(final String part) {
+		remove("outfit_colors", part);
 	}
 
 	@Override

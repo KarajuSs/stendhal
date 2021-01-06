@@ -156,17 +156,27 @@
 
     <!-- Portals -->
     <portal x="8" y="22" ref="apothecary_entrance" >
-    	<destination zone="int_apothecary_cabin" ref="exit" />
+      <destination zone="int_apothecary_cabin" ref="exit" />
+      <attribute name="move.continuous" />
     </portal>
 
     <!-- NPCs -->
-    <configurator class-name="games.stendhal.server.maps.semos.mountain.StrandedWizardNPC" />
+    <!--<configurator class-name="games.stendhal.server.maps.semos.mountain.BefuddledSorcerorNPC" />-->
 
   </zone>
 
   <!-- Interiors in 0_semos_mountain_n2_w -->
 
-  <zone name="int_apothecary_cabin" file="interiors/semos/apothecary_cabin.tmx" accessible="false">
+  <zone name="int_apothecary_cabin" file="interiors/semos/apothecary_cabin.tmx">
+
+    <!-- hint to secret lab -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.area.MessagingArea">
+        <parameter name="enterMessage">You feel a cool breeze coming in from somewhere.</parameter>
+        <parameter name="coversZone">true</parameter>
+        <parameter name="warnPlayer">true</parameter>
+      </implementation>
+    </entity>
 
     <!-- Portals -->
     <portal x="7" y="19" ref="exit">
@@ -174,16 +184,8 @@
       <attribute name="move.continuous" />
     </portal>
 
-    <portal x="3" y="13" ref="lab_entrance">
-      <destination zone="int_apothecary_lab" ref="lab_exit" />
-      <implementation
-        class-name="games.stendhal.server.entity.mapstuff.portal.QuestCompletedPortal">
-        <parameter name="quest">traps_for_klaas</parameter>
-        <parameter name="rejected">You feel a cool breeze coming in from somewhere.</parameter>
-      </implementation>
-      <attribute name="resistance">0</attribute>
-      <attribute name="hidden" />
-    </portal>
+    <!-- secret entrance to lab -->
+    <configurator class-name="games.stendhal.server.maps.semos.apothecary_cabin.LabEntrancePortal"/>
 
     <!-- Note on table -->
     <entity x="12" y="8">
@@ -215,10 +217,12 @@ Unfortunately I will not be able to visit Athor this year. I have run into a bit
     <configurator class-name="games.stendhal.server.maps.semos.apothecary_lab.VialOnTable" />
 
     <!-- Portals -->
+    <configurator class-name="games.stendhal.server.maps.semos.apothecary_lab.LabExitPortal"/>
+    <!--
     <portal x="33" y="13" ref="lab_exit">
       <destination zone="int_apothecary_cabin" ref="lab_entrance" />
-      <attribute name="move.continuous" />
     </portal>
+    -->
 
     <!-- Clock -->
     <entity x="13" y="1">
@@ -251,6 +255,7 @@ Unfortunately I will not be able to visit Athor this year. I have run into a bit
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying(temperature=-1)</parameter>
       <parameter name="file" condition="stendhal.minetown">Level 0/semos/mountain_n2_mine_town_weeks.tmx</parameter>
+      <parameter name="file" condition="stendhal.minetownconstruction">Level 0/semos/mountain_n2_mine_town_weeks_construction.tmx</parameter>
     </attributes>
 
     <point-of-interest x="90" y="97">
@@ -1146,13 +1151,13 @@ Unfortunately I will not be able to visit Athor this year. I have run into a bit
     <portal x="21" y="7" ref="portal_from_spire_2">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.portal.OneWayPortalDestination" />
+      <attribute name="move.continuous" />
     </portal>
     <portal x="21" y="23" ref="portal_sparkle_to_seventh_floor">
       <destination zone="int_semos_wizards_tower_7" ref="portal_sparkle_enter_spire" />
     </portal>
     <portal x="21" y="6" ref="portal_to_spire_2">
       <destination zone="int_semos_wizards_tower_9" ref="portal_from_spire_1" />
-      <attribute name="hidden" />
     </portal>
     <!-- <portal x="7" y="28" ref="portal_to_malleus_plain"> <destination
       zone="malleus_plain" ref="portal_to_malleus" /> </portal> -->
@@ -1231,10 +1236,10 @@ Unfortunately I will not be able to visit Athor this year. I have run into a bit
     <portal x="21" y="6" ref="portal_from_spire_1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.portal.OneWayPortalDestination" />
+      <attribute name="move.continuous" />
     </portal>
     <portal x="21" y="7" ref="portal_to_spire_1">
       <destination zone="int_semos_wizards_tower_8" ref="portal_from_spire_2" />
-      <attribute name="hidden" />
     </portal>
 
     <entity x="12" y="17">
@@ -1729,7 +1734,8 @@ Mature sheep wanted: please speak to Sato.
     <configurator class-name="games.stendhal.server.maps.semos.city.SheepBuyerNPC" />
     <configurator class-name="games.stendhal.server.maps.semos.city.SignLessorNPC" />
     <configurator
-      class-name="games.stendhal.server.maps.semos.city.MagicTeacherNPC" />
+      class-name="games.stendhal.server.maps.semos.city.MagicTeacherNPC"
+      condition="stendhal.magic" />
     <configurator class-name="games.stendhal.server.maps.semos.city.PuppyNPC" />
     <configurator class-name="games.stendhal.server.maps.semos.city.RudolphNPC"
       condition="stendhal.christmas" />
@@ -3391,7 +3397,9 @@ North: Semos City
 South: Kirdneh City
 East: Nalwor City
 Southwest: Or'ril Castle and Fado City
-                         </attribute>
+West: Deniran City
+      </attribute>
+      <attribute name="class">signpost</attribute>
     </entity>
 
 
@@ -4171,6 +4179,15 @@ Southwest: Or'ril Castle and Fado City
       <parameter name="color_method">softlight</parameter>
       <parameter name="color">#0099da</parameter>
     </attributes>
+
+    <!-- music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">ice_cave</parameter>
+      </implementation>
+    </entity>
+
+    <!-- NPCs -->
     <configurator class-name="games.stendhal.server.maps.semos.yeticave.MrYetiNPC" />
     <configurator class-name="games.stendhal.server.maps.semos.yeticave.MrsYetiNPC" />
   </zone>
@@ -4278,8 +4295,16 @@ Southwest: Or'ril Castle and Fado City
       <parameter name="color">#806283</parameter>
       <parameter name="blend_method">bleach</parameter>
     </attributes>
-    <portal x="9" y="6" ref="dragon_portal_1">
 
+    <!-- Music -->
+    <entity x="1" y="1">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">dark_quest</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
+    <portal x="9" y="6" ref="dragon_portal_1">
       <destination zone="-2_semos_catacombs" ref="dragon_portal_2" />
       <attribute name="hidden" />
     </portal>
@@ -4487,10 +4512,13 @@ Southwest: Or'ril Castle and Fado City
       <destination zone="-2_semos_catacombs" ref="downstairs" />
     </portal>
 
+    <!-- Music -->
     <entity x="1" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
-        <parameter name="sound">the_forsaken_mine</parameter>
+        <!--<parameter name="sound">the_forsaken_mine</parameter>-->
+        <parameter name="sound">dark_quest</parameter>
+        <parameter name="volume">80</parameter>
       </implementation>
     </entity>
 

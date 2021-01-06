@@ -171,6 +171,11 @@ public class SlotGrid extends JComponent implements ContentChangeListener, Inspe
 
 	@Override
 	public void contentAdded(RPSlot added) {
+		if (added == null) {
+			logger.debug("RPSlot for " + slotName + " is null", new Throwable());
+			return;
+		}
+
 		// We are interested only in one slot
 		if (slotName.equals(added.getName())) {
 			for (RPObject obj : added) {

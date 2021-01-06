@@ -51,6 +51,7 @@ import games.stendhal.server.entity.npc.condition.NotCondition;
 import games.stendhal.server.entity.npc.condition.OrCondition;
 import games.stendhal.server.entity.npc.condition.PlayerHasInfostringItemWithHimCondition;
 import games.stendhal.server.entity.npc.condition.PlayerHasItemWithHimCondition;
+import games.stendhal.server.entity.npc.condition.PlayerOwnsItemIncludingBankCondition;
 import games.stendhal.server.entity.npc.condition.QuestActiveCondition;
 import games.stendhal.server.entity.npc.condition.QuestCompletedCondition;
 import games.stendhal.server.entity.npc.condition.QuestInStateCondition;
@@ -275,7 +276,7 @@ public class MealForGroongo extends AbstractQuest {
     public void addToWorld() {
         fillQuestInfo(
             "Meal for Groongo Rahnnt",
-            "Groongo is hungry and wants to have a decent meal at Fado's Hotel Restaurant.",
+            "Groongo is hungry and wants to have a decent meal at Fado hotel's restaurant.",
             true);
         stageBeginQuest();
         stageCollectIngredientsForMainDish();
@@ -688,7 +689,7 @@ public class MealForGroongo extends AbstractQuest {
     }
 
     // Stefan uses this to advance the quest:
-    // - after the player has gathered all of required ingredients for the main dish
+    // - after the player has gathered all of the required ingredients for the main dish
     // - after the player has asked Groongo which dessert he'd like along the main dish
     // - after the player has gathered all of required ingredients for the dessert
     class advanceQuestInProgressAction implements ChatAction {
@@ -729,7 +730,7 @@ public class MealForGroongo extends AbstractQuest {
                                 player.getQuest(QUEST_SLOT, 4))) +
                         " for dessert.";
                 decentMeal.setInfoString("Decent Meal for Groongo");
-                decentMeal.setBoundTo("Groongo Rahnnt");
+                decentMeal.setBoundTo(player.getName());
                 decentMeal.setDescription(
                     "You see a dome-covered decent meal which consists of " +
                     decentMealDescription);
@@ -826,7 +827,7 @@ public class MealForGroongo extends AbstractQuest {
             player.setQuest(QUEST_SLOT, 5, requiredIngredientsForDessert);
 
             SpeakerNPC.say(
-                    "Indeed I shouldn't have forgot to ask for a dessert! " + 
+                    "Indeed I shouldn't have forgot to ask for a dessert! " +
                     "With " + Grammar.article_noun(getRequiredMainDishFancyName(requiredMainDish), true) +
                     " I want to try " + Grammar.a_noun(getRequiredDessertFancyName(requiredDessert)) +
                     " Now go ask Chef Stefan to prepare my " + requiredDessert + " for dessert!"
@@ -894,7 +895,7 @@ public class MealForGroongo extends AbstractQuest {
                   Grammar.a_noun(getRequiredMainDishFancyName(player.getQuest(QUEST_SLOT, 2))) + "..." +
               "For that I'll need some ingredients that at the moment I'm missing: " +
                   Grammar.enumerateCollection(missingIngredients.toStringList()) + "..." +
-              "Do you happen to have them all of the required ingredients with you already?"
+              "Do you happen to have all of the required ingredients with you already?"
             );
 
             //logger.warn("Quest state <" + player.getQuest(QUEST_SLOT) + ">");
@@ -1748,6 +1749,54 @@ public class MealForGroongo extends AbstractQuest {
             ConversationStates.IDLE,
             null,
             new MultipleActions(normalEndQuestActions)
+        );
+
+        // player has lost meal
+        npc_chef.add(ConversationStates.ATTENDING,
+        	Arrays.asList("meal", "dessert"),
+        	new AndCondition(
+        		new QuestInStateCondition(QUEST_SLOT, 0, "deliver_decentmeal"),
+        		new NotCondition(new PlayerOwnsItemIncludingBankCondition("decent meal"))
+        	),
+        	ConversationStates.QUESTION_2,
+        	"You lost the meal!? I can make another, but I will need you to fetch the ingredients again. Are you up for it?",
+        	null
+        );
+
+        // player wants another
+        npc_chef.add(ConversationStates.QUESTION_2,
+        	ConversationPhrases.YES_MESSAGES,
+        	new AndCondition(
+            		new QuestInStateCondition(QUEST_SLOT, 0, "deliver_decentmeal"),
+            		new NotCondition(new PlayerOwnsItemIncludingBankCondition("decent meal"))
+            	),
+        	ConversationStates.QUESTION_1,
+        	null,
+        	new MultipleActions(
+        		new SetQuestAction(QUEST_SLOT, 0, "fetch_maindish"),
+        		new checkIngredientsForMainDishAction()
+        	)
+        );
+
+        // player wants another meal but found decent meal
+        npc_chef.add(ConversationStates.QUESTION_2,
+        	ConversationPhrases.YES_MESSAGES,
+        	new AndCondition(
+            		new QuestInStateCondition(QUEST_SLOT, 0, "deliver_decentmeal"),
+            		new PlayerOwnsItemIncludingBankCondition("decent meal")
+            	),
+        	ConversationStates.IDLE,
+        	"It appears you have found the decent meal!",
+        	null
+        );
+
+        // player does not want another meal
+        npc_chef.add(ConversationStates.QUESTION_2,
+        	ConversationPhrases.NO_MESSAGES,
+       		new QuestInStateCondition(QUEST_SLOT, 0, "deliver_decentmeal"),
+       		ConversationStates.IDLE,
+       		"Oh? You remembered where you left the meal?",
+       		null
         );
     }
 }

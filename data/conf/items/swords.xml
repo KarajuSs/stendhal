@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <items xmlns="stendhal" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="stendhal ../items.xsd ">
 
@@ -132,15 +133,15 @@
 
   <item name="chaos sword">
     <type class="sword" subclass="chaos_sword" tileid="-1"/>
-    <description>You see a chaos sword, a mighty weapon that allows you to hurt your foes and to heal you at the same time.</description>
+    <description>You see a chaos sword. Wielding it allows to hurt your foes and to heal you at the same time.</description>
     <implementation class-name="games.stendhal.server.entity.item.Item"/>
     <attributes>
       <atk value="32"/>
-      <rate value="8"/>
+      <rate value="9"/>
       <lifesteal value="0.3"/>
       <min_level value="50"/>
     </attributes>
-    <weight value="8.0"/>
+    <weight value="10.0"/>
     <value value="182044"/>
     <equipable>
       <slot name="ground"/>
@@ -326,7 +327,7 @@
   </item>
 
   <item name="golden blade">
-    <type class="sword" subclass="magic_dagger" tileid="-1"/>
+    <type class="sword" subclass="golden_blade" tileid="-1"/>
     <description>You see the rare and precious golden blade. It can steal life from those you stab with it.</description>
     <implementation class-name="games.stendhal.server.entity.item.Item"/>
     <attributes>
@@ -666,6 +667,29 @@
     </equipable>
   </item>
 
+  <item name="royal dagger">
+    <type class="sword" subclass="royal_dagger" tileid="-1"/>
+    <description>You see the rare and precious royal dagger. It can steal life from those you stab with it.</description>
+    <implementation class-name="games.stendhal.server.entity.item.Item"/>
+    <attributes>
+      <atk value="5"/>
+      <rate value="1"/>
+      <lifesteal value="0.1"/>
+      <min_level value="250"/>
+    </attributes>
+    <weight value="0.2"/>
+    <value value="1000000"/>
+    <damage type="dark"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
   <item name="scimitar">
     <type class="sword" subclass="scimitar" tileid="-1"/>
     <description>This scimitar catches the light as you look at it, it will be a powerful weapon.</description>
@@ -791,4 +815,26 @@
       <slot name="rhand"/>
     </equipable>
   </item>
+
+  <item name="training sword">
+    <type class="sword" subclass="training_sword" tileid="-1"/>
+    <description>You see a wooden training sword not even useful for cutting butter. But it is light and easy to swing.</description>
+    <implementation class-name="games.stendhal.server.entity.item.BreakableItem"/>
+    <attributes>
+      <atk value="0"/>
+      <rate value="1"/>
+      <durability value="800"/>
+    </attributes>
+    <weight value="2.0"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
 </items>

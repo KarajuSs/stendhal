@@ -141,7 +141,11 @@
     <configurator class-name="games.stendhal.server.maps.ados.market.FishSoupMakerNPC" />
     <configurator class-name="games.stendhal.server.maps.ados.market.FierywaterDistillerNPC" />
     <configurator class-name="games.stendhal.server.maps.ados.market.DistilleryCustomerNPC" />
+
+    <!-- The troll should be somewhere isolated and not at a busy market place
     <configurator class-name="games.stendhal.server.maps.ados.market.GrocerySellerNPC" />
+    -->
+
     <configurator class-name="games.stendhal.server.maps.ados.market.OracleNPC" />
     <configurator class-name="games.stendhal.server.maps.ados.market.CafeSellerNPC" />
     <configurator class-name="games.stendhal.server.maps.ados.market.HalfElfNPC" />
@@ -1729,6 +1733,15 @@ You should never dive with a cold or severe allergy because, you may not be able
   </zone>
 
   <zone name="int_ados_tavern_0" file="interiors/ados/tavern_0.tmx">
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">spinning_tavern</parameter>
+        <parameter name="volume">127</parameter>
+      </implementation>
+    </entity>
+
     <!-- NPCs -->
     <configurator class-name="games.stendhal.server.maps.ados.tavern.BarMaidNPC" />
     <configurator class-name="games.stendhal.server.maps.ados.tavern.BarmanNPC" />
@@ -2128,7 +2141,7 @@ You should never dive with a cold or severe allergy because, you may not be able
     <!-- Interactive sounds -->
     <entity x="39" y="16">
       <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -2234,6 +2247,15 @@ You should never dive with a cold or severe allergy because, you may not be able
   </zone>
 
   <zone name="int_ados_bar" file="interiors/ados/bar.tmx">
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">spinning_tavern</parameter>
+        <parameter name="volume">127</parameter>
+      </implementation>
+    </entity>
+
     <!-- NPCs -->
     <configurator class-name="games.stendhal.server.maps.ados.bar.BarMaidNPC" />
     <configurator class-name="games.stendhal.server.maps.semos.tavern.StichardRallmanNPC" />
@@ -2256,6 +2278,15 @@ You should never dive with a cold or severe allergy because, you may not be able
   </zone>
 
   <zone name="int_ados_bar_1" file="interiors/ados/bar_1.tmx">
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">spinning_tavern</parameter>
+        <parameter name="volume">127</parameter>
+      </implementation>
+    </entity>
+
     <configurator class-name="games.stendhal.server.maps.ados.bar.ItemsOnTableUpstairs" />
 
     <!-- Portals -->
@@ -3676,7 +3707,7 @@ My fee:
   <!-- Interactive sounds -->
   <entity x="3" y="11">
     <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-      <parameter name="sound">piano-1</parameter>
+      <parameter name="sound">piano-01</parameter>
       <parameter name="radius">40</parameter>
     </implementation>
     <attribute name="width">2</attribute>
@@ -3719,7 +3750,7 @@ My fee:
     <!-- Piano -->
     <entity x="11" y="6">
       <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -3999,7 +4030,7 @@ My fee:
     <!-- Interactive sounds -->
     <entity x="3" y="11">
       <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -4365,7 +4396,7 @@ My fee:
     <!-- Interactive sounds -->
     <entity x="13" y="4">
       <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -5838,7 +5869,7 @@ East Tunnel: Uncharted</attribute>
     <!-- Interactive sounds -->
     <entity x="19" y="22">
       <implementation class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -5903,9 +5934,6 @@ I have found some water but fear I am trapped. I have yet to find any food and t
         <parameter name="volume">120</parameter>
       </implementation>
     </entity>
-
-    <!-- Item protecting creatures -->
-    <configurator class-name="games.stendhal.server.maps.ados.snake_pit.KingCobraCreature" />
 
   </zone>
 

@@ -50,9 +50,10 @@ public class RPEntityRPClass {
         entity.addAttribute("def_xp", Type.INT, Definition.PRIVATE);
         entity.addAttribute("def_item", Type.INT,
                 (byte) (Definition.PRIVATE | Definition.VOLATILE));
-
-        entity.addAttribute("ratk", Type.SHORT, Definition.VOLATILE); // TODO remove
-        entity.addAttribute("ratk_xp", Type.INT, Definition.VOLATILE);  // TODO remove
+        entity.addAttribute("ratk", Type.SHORT, (byte) (Definition.PRIVATE | Definition.VOLATILE));
+        entity.addAttribute("ratk_xp", Type.INT, (byte) (Definition.PRIVATE | Definition.VOLATILE));
+        entity.addAttribute("ratk_item", Type.INT,
+                (byte) (Definition.PRIVATE | Definition.VOLATILE));
 
         entity.addAttribute("risk", Type.BYTE, Definition.VOLATILE); // obsolete, do not use
         entity.addAttribute("damage", Type.INT, Definition.VOLATILE); // obsolete, do not use
@@ -67,6 +68,8 @@ public class RPEntityRPClass {
         entity.addAttribute("unnamed", Type.FLAG, Definition.VOLATILE);
         entity.addAttribute("no_hpbar", Type.FLAG, Definition.VOLATILE);
         entity.addAttribute("no_attack", Type.FLAG, Definition.VOLATILE);
+        entity.addAttribute("no_shadow", Type.FLAG, Definition.VOLATILE); // client will suppress drawing shadow under entity if this is set
+        entity.addAttribute("shadow_style", Type.STRING, Definition.VOLATILE);
 
         // Jobs
         entity.addAttribute("job_merchant", Type.FLAG, Definition.VOLATILE);
@@ -91,6 +94,10 @@ public class RPEntityRPClass {
 
 		/* Movement */
 		entity.addAttribute(PATHSET, Type.STRING, Definition.VOLATILE);
+		// flying entities are not blocked by FlyOverArea
+		entity.addAttribute("flying", Type.FLAG, Definition.VOLATILE);
+		// animation should cycle even if entity is idle
+		entity.addAttribute("active_idle", Type.FLAG, Definition.VOLATILE);
 
         entity.addRPSlot("head", 1, Definition.PRIVATE);
         entity.addRPSlot("rhand", 1, Definition.PRIVATE);
@@ -101,10 +108,12 @@ public class RPEntityRPClass {
         entity.addRPSlot("legs", 1, Definition.PRIVATE);
         entity.addRPSlot("feet", 1, Definition.PRIVATE);
         entity.addRPSlot("back", 1, Definition.PRIVATE);
-        entity.addRPSlot("belt", 1, Definition.PRIVATE);
+        entity.addRPSlot("belt", 1, (byte) (Definition.PRIVATE|Definition.VOLATILE));
 
         entity.addRPSlot("bag", 12, Definition.PRIVATE);
         entity.addRPSlot("keyring", 8, Definition.PRIVATE);
+
+        entity.addRPSlot("portfolio", 9, Definition.VOLATILE);
 
         entity.addRPEvent("attack", Definition.VOLATILE);
     }

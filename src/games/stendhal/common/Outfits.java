@@ -31,22 +31,26 @@ public class Outfits {
 	public static final int HEAD_OUTFITS = 4;
 
 	/** number of player selectable dresses */
-	public static final int CLOTHES_OUTFITS = 64;
+	public static final int CLOTHES_OUTFITS = 63;
 
 	/** number of player selectable hair styles */
 	public static final int HAIR_OUTFITS = 48;
 
 	/** number of player selectable body shapes */
 	public static final int BODY_OUTFITS = 3;
+	private static final List<Integer> DRESS_COMPATIBLE_BODIES = Arrays.asList(980, 981); // populate with any other bodies that a dress layer can be worn over
 
 	/** number of player selectable eyes */
-	public static final int EYES_OUTFITS = 25;
+	public static final int EYES_OUTFITS = 26;
 
 	/** number of player selectable mouths */
 	public static final int MOUTH_OUTFITS = 5;
 
 	public static final int MASK_OUTFITS = 9;
-	public static final int HAT_OUTFITS = 12;
+	public static final int HAT_OUTFITS = 14;
+
+	// hair should not be drawn with hat indexes in this list
+	public static final List<Integer> HATS_NO_HAIR = Arrays.asList(3, 4, 13, 992, 993, 994);
 
 	// layers used for building outfits
 	public static final List<String> LAYER_NAMES = Arrays.asList(
@@ -56,5 +60,20 @@ public class Outfits {
 
 	// layers that can be re-colored
 	public static final List<String> RECOLORABLE_OUTFIT_PARTS = Arrays.asList(
-			"detail", "dress", "hair", "body", "head", "eyes");
+			"detail", "dress", "hair", "body", "head", "eyes", "mask", "hat");
+
+
+	/**
+	 * Checks if a dress layer can be worn over an outfit index.
+	 *
+	 * @param body
+	 * 		Body index.
+	 * @return
+	 * 		<code>true</code> if body is <code>null</code>, or if body is within the range
+	 * 		of player-selectable indexes, or if the index has been explicitly listed in the
+	 * 		dress compatible list.
+	 */
+	public static boolean isDressCompatibleBody(final Integer body) {
+		return body == null || (body >= 0 && body < BODY_OUTFITS) || DRESS_COMPATIBLE_BODIES.contains(body);
+	}
 }

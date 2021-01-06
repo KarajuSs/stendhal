@@ -53,12 +53,14 @@ public class UpdatePendingAchievementsOnLogin implements LoginListener, TurnList
 		Player player = command.getPlayer();
 
 		updateElfPrincessAchievement(player, command.getDetails("quest.special.elf_princess.0025"));
+		updateKillBlordroughsAchievement(player, command.getDetails("quest.special.kill_blordroughs.5"));
 		updateItemLoots(player, command.getDetails("item.set.black"));
 		updateItemLoots(player, command.getDetails("item.set.chaos"));
 		updateItemLoots(player, command.getDetails("item.set.shadow"));
 		updateItemLoots(player, command.getDetails("item.set.golden"));
 		updateItemLoots(player, command.getDetails("item.set.red"));
 		updateItemLoots(player, command.getDetails("item.set.mainio"));
+		updateItemHarvest(player, command.getDetails("obtain.apple"));
 
 		// Could also check for reached achievements here. This is also checked on login but the order may vary due to the async access?
 
@@ -105,6 +107,36 @@ public class UpdatePendingAchievementsOnLogin implements LoginListener, TurnList
 		}
 	}
 
+	private static void updateKillBlordroughsAchievement(final Player player, final Map<String, Integer> details) {
+
+		// nothing to update
+		if (details == null) {
+			return;
+		}
+
+		String QUEST_SLOT = "kill_blordroughs";
+
+		// if player didn't start this quest yet, do nothing (shouldn't be details in this case but check anyway)
+		if (!player.hasQuest(QUEST_SLOT)) {
+			return;
+		}
+
+		// param (key) should be "" for this one, all we need to know is the count
+		int missingCount = details.get("");
+
+		if (missingCount > 0) {
+			String slot = player.getQuest(QUEST_SLOT);
+			if (slot.indexOf(";completed=") < 0) {
+				player.setQuest(QUEST_SLOT, slot + ";completed=" + missingCount); 
+			} else {
+				String slotValue = slot.substring(slot.lastIndexOf('=') + 1);
+				if (MathHelper.parseIntDefault(slotValue, 0) < missingCount) {
+					player.setQuest(QUEST_SLOT, slot.substring(0, slot.lastIndexOf('=') + 1) + missingCount);
+				}
+			}
+		}
+	}
+
 	private static void updateItemLoots(final Player player, final Map<String, Integer> details) {
 
 		// nothing to update
@@ -113,9 +145,22 @@ public class UpdatePendingAchievementsOnLogin implements LoginListener, TurnList
 		}
 
 		// update player loots which have been stored as param (key) = itemname, count (value) = number of loots
-		for (Map.Entry<String, Integer> detail : details.entrySet())
-		{
+		for (Map.Entry<String, Integer> detail : details.entrySet()) {
 			player.incLootForItem(detail.getKey(), detail.getValue());
+		}
+	}
+
+
+	private static void updateItemHarvest(final Player player, final Map<String, Integer> details) {
+
+		// nothing to update
+		if (details == null) {
+			return;
+		}
+
+		// update player loots which have been stored as param (key) = itemname, count (value) = number of loots
+		for (Map.Entry<String, Integer> detail : details.entrySet()) {
+			player.incHarvestedForItem(detail.getKey(), detail.getValue());
 		}
 	}
 

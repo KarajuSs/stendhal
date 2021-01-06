@@ -113,6 +113,24 @@
     </equipable>
   </item>
 
+  <item name="lamp">
+    <type class="tool" subclass="lamp" tileid="-1"/>
+    <description>You see a lamp.</description>
+    <implementation class-name="games.stendhal.server.entity.item.Item"/>
+    <attributes>
+    </attributes>
+    <weight value="1.0"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
   <item name="magical scissors">
     <type class="tool" subclass="magical_scissors" tileid="-1"/>
     <description>You see a sparkling pair of magical scissors. Just think what they could cut!</description>
@@ -185,5 +203,42 @@
       <slot name="rhand"/>
     </equipable>
   </item> -->
+
+  <item name="leather needle">
+    <type class="tool" subclass="leather_needle" tileid="-1"/>
+    <description>You see a heavy leather needle for working thick hide.</description>
+    <implementation class-name="games.stendhal.server.entity.item.Item"/>
+    <attributes>
+    </attributes>
+    <weight value="1.0"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
+  <item name="rotary cutter">
+    <type class="tool" subclass="rotary_cutter" tileid="-1"/>
+    <description>You see a rotary cutter. It can be used to cut up pizza. But perhaps it can be used on other things as well.</description>
+    <implementation class-name="games.stendhal.server.entity.item.FoodMill"/>
+    <attributes>
+      <menu value="Use|Use"/>
+    </attributes>
+    <weight value="1.0"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
 
 </items>

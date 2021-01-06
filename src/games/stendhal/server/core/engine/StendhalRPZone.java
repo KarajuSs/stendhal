@@ -12,12 +12,15 @@
  ***************************************************************************/
 package games.stendhal.server.core.engine;
 
+import static games.stendhal.common.constants.Actions.MOVE_CONTINUOUS;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,6 +58,8 @@ import games.stendhal.server.entity.creature.Creature;
 import games.stendhal.server.entity.creature.DomesticAnimal;
 import games.stendhal.server.entity.creature.Sheep;
 import games.stendhal.server.entity.item.Item;
+import games.stendhal.server.entity.mapstuff.area.WalkBlocker;
+import games.stendhal.server.entity.mapstuff.area.WalkBlockerFactory;
 import games.stendhal.server.entity.mapstuff.portal.OneWayPortalDestination;
 import games.stendhal.server.entity.mapstuff.portal.Portal;
 import games.stendhal.server.entity.mapstuff.spawner.CreatureRespawnPoint;
@@ -63,7 +68,10 @@ import games.stendhal.server.entity.mapstuff.spawner.PassiveEntityRespawnPointFa
 import games.stendhal.server.entity.mapstuff.spawner.SheepFood;
 import games.stendhal.server.entity.npc.NPC;
 import games.stendhal.server.entity.npc.SpeakerNPC;
+import games.stendhal.server.entity.npc.TrainingDummy;
+import games.stendhal.server.entity.npc.TrainingDummyFactory;
 import games.stendhal.server.entity.player.Player;
+import games.stendhal.server.util.StringUtils;
 import marauroa.common.game.IRPZone;
 import marauroa.common.game.RPObject;
 import marauroa.common.game.RPSlot;
@@ -161,12 +169,24 @@ public class StendhalRPZone extends MarauroaRPZone {
 	private final int DOWN_FE = 13;
 	private final int DOWN_FS = 14;
 	private final int DOWN_FW = 15;
+	private final int UP_FN_CM = 16;
+	private final int UP_FE_CM = 17;
+	private final int UP_FS_CM = 18;
+	private final int UP_FW_CM = 19;
+	private final int DOWN_FN_CM = 20;
+	private final int DOWN_FE_CM = 21;
+	private final int DOWN_FS_CM = 22;
+	private final int DOWN_FW_CM = 23;
 	private final List<Integer> stairsUp = new ArrayList<Integer>() {{
 		add(2);
 		add(UP_FN);
 		add(UP_FE);
 		add(UP_FS);
 		add(UP_FW);
+		add(UP_FN_CM);
+		add(UP_FE_CM);
+		add(UP_FS_CM);
+		add(UP_FW_CM);
 	}};
 	private final List<Integer> stairsDown = new ArrayList<Integer>() {{
 		add(3);
@@ -174,6 +194,10 @@ public class StendhalRPZone extends MarauroaRPZone {
 		add(DOWN_FE);
 		add(DOWN_FS);
 		add(DOWN_FW);
+		add(DOWN_FN_CM);
+		add(DOWN_FE_CM);
+		add(DOWN_FS_CM);
+		add(DOWN_FW_CM);
 	}};
 
 	public StendhalRPZone(final String name) {
@@ -522,17 +546,12 @@ public class StendhalRPZone extends MarauroaRPZone {
 		int levelSum = 1;
 		for (CreatureRespawnPoint spawner : respawnPoints) {
 			Creature creature = spawner.getPrototypeCreature();
-			// Rare creatures should not count.
-			if (creature.isRare()) {
+			// Rare & abnormal creatures should not count.
+			if (creature.isAbnormal()) {
 				continue;
 			}
 			// Add 1, so that level 0 creatures do not get completely ignored.
 			int level = creature.getLevel() + 1;
-			// The level restriction is a hack to keep the chess pieces from
-			// being included.
-			if (level > 1000) {
-				continue;
-			}
 			maxLevel = Math.max(level, maxLevel);
 			levelSum += level;
 		}
@@ -653,6 +672,16 @@ public class StendhalRPZone extends MarauroaRPZone {
 					passiveEntityrespawnPoint.setStartState();
 
 				}
+			} else if (clazz.contains("logic/training_dummy")) {
+				final TrainingDummy dummy = TrainingDummyFactory.create(type);
+				dummy.setPosition(x, y);
+				add(dummy);
+			} else if (clazz.contains("logic/area")) {
+				// TODO: configure WalkBlocker & FlyOverArea on "collision" map layer
+
+				final WalkBlocker blocker = WalkBlockerFactory.create(type);
+				blocker.setPosition(x, y);
+				add(blocker);
 			}
 		} catch (final RuntimeException e) {
 			logger.error("error creating entity " + type + " at (" + x + ","
@@ -692,6 +721,26 @@ public class StendhalRPZone extends MarauroaRPZone {
 			case UP_FW:
 			case DOWN_FW:
 				portal.setFaceDirection(Direction.LEFT);
+				break;
+			case UP_FN_CM:
+			case DOWN_FN_CM:
+				portal.setFaceDirection(Direction.UP);
+				portal.put(MOVE_CONTINUOUS, "");
+				break;
+			case UP_FE_CM:
+			case DOWN_FE_CM:
+				portal.setFaceDirection(Direction.RIGHT);
+				portal.put(MOVE_CONTINUOUS, "");
+				break;
+			case UP_FS_CM:
+			case DOWN_FS_CM:
+				portal.setFaceDirection(Direction.DOWN);
+				portal.put(MOVE_CONTINUOUS, "");
+				break;
+			case UP_FW_CM:
+			case DOWN_FW_CM:
+				portal.setFaceDirection(Direction.LEFT);
+				portal.put(MOVE_CONTINUOUS, "");
 				break;
 			default:
 				break;
@@ -1057,8 +1106,30 @@ public class StendhalRPZone extends MarauroaRPZone {
 		return false;
 	}
 
+	/**
+	 * Checks a single pair of coordinates for collision.
+	 *
+	 * @param x
+	 * 		X-coordinate
+	 * @param y
+	 * 		Y-coordinate
+	 * @return
+	 * 		<code>true</code> if collision tile located at coordinates.
+	 */
 	public boolean collides(final int x, final int y) {
 		return collisionMap.collides(x, y);
+	}
+
+	/**
+	 * Checks an area for collision.
+	 *
+	 * @param shape
+	 * 		Rectangle area.
+	 * @return
+	 * 		<code>true</code> if any collision tiles are found in the area.
+	 */
+	public boolean collides(final Rectangle2D shape) {
+		return collisionMap.collides(shape);
 	}
 
 	/**
@@ -1206,6 +1277,48 @@ public class StendhalRPZone extends MarauroaRPZone {
 	 */
 	public String getName() {
 		return getID().getID();
+	}
+
+	public String getHumanReadableName() {
+		final List<String> commonSuffixes = Arrays.asList(
+				"n", "nw", "ne", "s", "sw", "se", "e", "w");
+
+		//final StringBuilder sb = new StringBuilder();
+		final List<String> prefix = new LinkedList<>();
+		final List<String> suffix = new LinkedList<>();
+
+		String level = null;
+		for (final String word: getName().split("_")) {
+			if (level == null) {
+				level = word;
+				continue;
+			}
+
+			if (commonSuffixes.contains(word)) {
+				suffix.add(word);
+				continue;
+			}
+
+			try {
+				if (word.length() > 1) {
+					Integer.parseInt(word.substring(1));
+					suffix.add(word);
+					continue;
+				}
+			} catch (final NumberFormatException e) {
+
+			}
+
+			prefix.add(word);
+		}
+
+		final StringBuilder sb = new StringBuilder(StringUtils.titleize(String.join(" ", prefix)));
+		if (!suffix.isEmpty()) {
+			sb.append(" " + String.join("", suffix).toUpperCase());
+		}
+		sb.append(", level " + level);
+
+		return sb.toString();
 	}
 
 	/**

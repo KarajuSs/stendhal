@@ -12,6 +12,10 @@
  ***************************************************************************/
 package games.stendhal.client.gui.stats;
 
+import static games.stendhal.client.gui.settings.SettingsProperties.HP_BAR_PROPERTY;
+
+import java.awt.Dimension;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -21,6 +25,7 @@ import games.stendhal.client.gui.layout.SBoxLayout;
 import games.stendhal.client.gui.layout.SLayout;
 import games.stendhal.client.gui.styled.Style;
 import games.stendhal.client.gui.styled.StyleUtil;
+import games.stendhal.client.gui.wt.core.WtWindowManager;
 
 /**
  * Display panel for status icons and player stats. The methods may be safely
@@ -33,7 +38,8 @@ class StatsPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -353271026575752035L;
 
-	private final StatLabel hpLabel, atkLabel, defLabel, xpLabel, levelLabel, moneyLabel;
+	private final StatLabel hpLabel, atkLabel, defLabel, ratkLabel, xpLabel, levelLabel, moneyLabel;
+	private final HPIndicator hpBar;
 	private final StatusIconPanel statusIcons;
 	private final KarmaIndicator karmaIndicator;
 	private final ManaIndicator manaIndicator;
@@ -57,8 +63,24 @@ class StatsPanel extends JPanel {
 		hpLabel = new StatLabel();
 		add(hpLabel, SLayout.EXPAND_X);
 
+		hpBar = new HPIndicator();
+		hpBar.setPreferredSize(new Dimension(0, 10));
+		hpBar.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		add(hpBar, SLayout.EXPAND_X);
+
+		// show/hide HP bar depending on settings property
+		toggleHPBar(WtWindowManager.getInstance().getPropertyBoolean(HP_BAR_PROPERTY, true));
+
 		atkLabel = new StatLabel();
 		add(atkLabel, SLayout.EXPAND_X);
+
+		ratkLabel = new StatLabel();
+		add(ratkLabel, SLayout.EXPAND_X);
+		/* only show RATK stat if set by server
+		 *
+		 * TODO: this can be removed in future versions
+		 */
+		ratkLabel.setVisible(false);
 
 		defLabel = new StatLabel();
 		add(defLabel, SLayout.EXPAND_X);
@@ -83,6 +105,28 @@ class StatsPanel extends JPanel {
 	}
 
 	/**
+	 * Update the HP indicator bar.
+	 *
+	 * @param maxhp
+	 * 		Player's maximum HP value.
+	 * @param hp
+	 * 		Player's actual HP value.
+	 */
+	void setHPBar(final int maxhp, final int hp) {
+		hpBar.setHP(maxhp, hp);
+	}
+
+	/**
+	 * Show/Hide HP bar.
+	 *
+	 * @param show
+	 * 		If <code>true</code>, HP bar will be visible.
+	 */
+	void toggleHPBar(final boolean show) {
+		hpBar.setVisible(show);
+	}
+
+	/**
 	 * Set the atk description string.
 	 *
 	 * @param atk
@@ -98,6 +142,22 @@ class StatsPanel extends JPanel {
 	 */
 	void setDef(String def) {
 		defLabel.setText(def);
+	}
+
+	/**
+	 * Set the ratk description string.
+	 *
+	 * @param ratk
+	 */
+	void setRatk(String ratk) {
+		/* only show RATK stat if set by server
+		 *
+		 * TODO: this can be removed in future versions
+		 */
+		if (!ratkLabel.isVisible()) {
+			ratkLabel.setVisible(true);
+		}
+		ratkLabel.setText(ratk);
 	}
 
 	/**

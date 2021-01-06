@@ -26,6 +26,10 @@ import games.stendhal.server.entity.npc.condition.PlayerLootedNumberOfItemsCondi
  */
 public class ItemAchievementFactory extends AbstractAchievementFactory {
 
+	public static final String ID_ROYAL = "item.set.royal";
+	public static final String ID_MAGIC = "item.set.magic";
+
+
 	@Override
 	protected Category getCategory() {
 		return Category.ITEM;
@@ -35,11 +39,15 @@ public class ItemAchievementFactory extends AbstractAchievementFactory {
 	public Collection<Achievement> createAchievements() {
 		List<Achievement> itemAchievements = new LinkedList<Achievement>();
 
-		itemAchievements.add(createAchievement("item.money.100", "First pocket money", "Loot 100 money from creatures",
+		itemAchievements.add(createAchievement("item.money.100", "First Pocket Money", "Loot 100 money from creatures",
 				Achievement.EASY_BASE_SCORE, true,
 				new PlayerLootedNumberOfItemsCondition(100, "money")));
 
-		itemAchievements.add(createAchievement("item.money.1000000", "You don't need it anymore", "Loot 1000000 money from creatures",
+		itemAchievements.add(createAchievement("item.money.10000", "Goldshower", "Loot 10,000 money",
+				Achievement.EASY_BASE_SCORE, true,
+				new PlayerLootedNumberOfItemsCondition(10000, "money")));
+
+		itemAchievements.add(createAchievement("item.money.1000000", "You Don't Need it Anymore", "Loot 1000000 money from creatures",
 				Achievement.HARD_BASE_SCORE, true,
 				new PlayerLootedNumberOfItemsCondition(1000000, "money")));
 
@@ -73,7 +81,7 @@ public class ItemAchievementFactory extends AbstractAchievementFactory {
 				new PlayerLootedNumberOfItemsCondition(1, "golden armor", "golden helmet", "golden cloak", "golden legs",
 						"golden boots", "golden shield")));
 
-		itemAchievements.add(createAchievement("item.set.black", "Come to the dark side", "Loot a complete black equipment set",
+		itemAchievements.add(createAchievement("item.set.black", "Come to the Dark Side", "Loot a complete black equipment set",
 				Achievement.HARD_BASE_SCORE, true,
 				new PlayerLootedNumberOfItemsCondition(1, "black armor", "black helmet", "black cloak", "black legs",
 						"black boots", "black shield")));
@@ -83,7 +91,7 @@ public class ItemAchievementFactory extends AbstractAchievementFactory {
 				new PlayerLootedNumberOfItemsCondition(1, "mainio armor", "mainio helmet", "mainio cloak", "mainio legs",
 						"mainio boots", "mainio shield")));
 
-		itemAchievements.add(createAchievement("item.set.xeno", "A Bit Xenophobic?", "Loot a complete xeno equipment set",
+		itemAchievements.add(createAchievement("item.set.xeno", "A Bit Xeno?", "Loot a complete xeno equipment set",
 				Achievement.HARD_BASE_SCORE, true,
 				new PlayerLootedNumberOfItemsCondition(1, "xeno armor", "xeno helmet", "xeno cloak", "xeno legs",
 						"xeno boots", "xeno shield")));
@@ -93,7 +101,24 @@ public class ItemAchievementFactory extends AbstractAchievementFactory {
 				new PlayerLootedNumberOfItemsCondition(1, "black dragon cloak", "blue dragon cloak", "bone dragon cloak",
 						"green dragon cloak", "red dragon cloak")));
 
+		itemAchievements.add(createAchievement("item.cheese.2000", "Cheese Wiz", "Loot 2,000 cheese",
+				Achievement.EASY_BASE_SCORE, true,
+				new PlayerLootedNumberOfItemsCondition(2000, "cheese")));
+
+		itemAchievements.add(createAchievement("item.ham.2500", "Ham Hocks", "Loot 2,500 ham",
+				Achievement.EASY_BASE_SCORE, true,
+				new PlayerLootedNumberOfItemsCondition(2500, "ham")));
+
+		itemAchievements.add(createAchievement(ID_ROYAL, "Royally Endowed", "Loot a complete royal equipment set",
+				Achievement.MEDIUM_BASE_SCORE, true,
+				new PlayerLootedNumberOfItemsCondition(1, "royal armor", "royal helmet", "royal cloak", "royal legs",
+						"royal boots", "royal shield")));
+
+		itemAchievements.add(createAchievement(ID_MAGIC, "Magic Supplies", "Loot a complete magic equipment set",
+				Achievement.MEDIUM_BASE_SCORE, true,
+				new PlayerLootedNumberOfItemsCondition(1, "magic plate armor", "magic chain helmet", "magic cloak",
+						"magic plate legs", "magic plate boots", "magic plate shield")));
+
 		return itemAchievements;
 	}
-
 }

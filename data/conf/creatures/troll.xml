@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+
 <creatures xmlns="stendhal" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="stendhal ../creatures.xsd ">
+
 
   <!-- START: cyclops -->
 
   <creature name="cyclops">
-    <type class="giant" subclass="cyclops" tileid="giant.png:0"/>
+    <type class="giant" subclass="cyclops" tileid="troll.png:3"/>
     <description>You see a cyclops. It just has one eye.</description>
     <attributes>
       <atk value="125"/>
@@ -25,7 +27,7 @@
       <item value="studded boots" quantity="[1,1]" probability="0.5"/>
       <item value="enhanced mace" quantity="[1,1]" probability="1.0"/>
       <item value="studded shield" quantity="[1,1]" probability="0.5"/>
-      <item value="tripe" quantity="[1,2]" probability="50.0"/>
+      <!--<item value="tripe" quantity="[1,2]" probability="50.0"/>-->
     </drops>
     <equips>
     </equips>
@@ -45,6 +47,7 @@
   </creature>
 
   <!-- END: cyclops -->
+
 
   <!-- START: troll -->
 
@@ -133,11 +136,11 @@
     <level value="63"/>
     <experience value="3100"/>
     <respawn value="1870"/>
-    <corpse name="humanoid_2x2" width="2" height="2"/>
+    <corpse name="humanoid_2x2"/>
     <drops>
       <item value="money" quantity="[1,30]" probability="100.0"/>
       <item value="meat" quantity="[1,5]" probability="10.5"/>
-      <item value="tripe" quantity="[1,2]" probability="50.0"/>
+      <!--<item value="tripe" quantity="[1,2]" probability="50.0"/>-->
       <item value="ugmash" quantity="[1,1]" probability="1.0"/>
       <item value="barbarian armor" quantity="[1,1]" probability="5.5"/>
       <item value="stone boots" quantity="[1,1]" probability="2.5"/>
@@ -159,5 +162,6 @@
   </creature>
 
   <!-- END: troll -->
+
 
 </creatures>

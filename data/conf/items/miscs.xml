@@ -8,7 +8,6 @@
     <implementation class-name="games.stendhal.server.entity.item.Item" />
     <attributes>
       <quantity value="1" />
-      <menu value="Look|Use"/>
     </attributes>
     <weight value="1.0" />
     <value value="1" />
@@ -307,13 +306,74 @@
 
   <item name="venom gland">
     <type class="misc" subclass="venom_gland" tileid="-1"/>
-    <description>You see the venom gland of a giant cobra. It is filled with deadly toxin.</description>
+    <description>You see the venom gland of a giant king cobra. It is filled with deadly toxin.</description>
+    <implementation class-name="games.stendhal.server.entity.item.StackableItem"/>
+    <attributes>
+      <quantity value="1"/>
+      <max_quantity value="2147483647"/>
+      <autobind value=""/>
+    </attributes>
+    <weight value="0.03"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
+  <item name="pelt">
+    <type class="misc" subclass="pelt" tileid="-1"/>
+    <description></description>
     <implementation class-name="games.stendhal.server.entity.item.StackableItem"/>
     <attributes>
       <quantity value="1"/>
       <max_quantity value="2147483647"/>
     </attributes>
-    <weight value="0.03"/>
+    <weight value="0.1"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
+  <item name="leather thread">
+    <type class="misc" subclass="leather_thread" tileid="-1"/>
+    <description>You see a strand of sturdy leather thread.</description>
+    <implementation class-name="games.stendhal.server.entity.item.StackableItem"/>
+    <attributes>
+      <quantity value="1"/>
+      <max_quantity value="2147483647"/>
+    </attributes>
+    <weight value="1.0"/>
+    <value value="1"/>
+    <equipable>
+      <slot name="ground"/>
+      <slot name="content"/>
+      <slot name="bag"/>
+      <slot name="trade"/>
+      <slot name="lhand"/>
+      <slot name="rhand"/>
+    </equipable>
+  </item>
+
+  <item name="unicorn horn">
+    <type class="misc" subclass="unicorn_horn" tileid="-1"/>
+    <description></description>
+    <implementation class-name="games.stendhal.server.entity.item.StackableItem"/>
+    <attributes>
+      <quantity value="1"/>
+      <max_quantity value="2147483647"/>
+    </attributes>
+    <weight value="1.0"/>
     <value value="1"/>
     <equipable>
       <slot name="ground"/>

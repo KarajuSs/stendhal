@@ -32,8 +32,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -57,8 +57,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -82,8 +82,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -107,8 +107,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -132,8 +132,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -157,9 +157,9 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
       <profile name="heal" params="5,50"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -185,8 +185,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
      </ai>
   </creature>
 
@@ -210,8 +210,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -235,8 +235,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -260,8 +260,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -285,8 +285,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
@@ -310,8 +310,8 @@
     <equips>
     </equips>
     <ai>
-      <profile name="non offensive"/>
       <profile name="human"/>
+      <profile name="abnormal"/>
     </ai>
   </creature>
 
