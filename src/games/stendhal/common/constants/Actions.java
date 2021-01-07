@@ -194,12 +194,14 @@ public final class Actions {
 	// Movement/Control
 	public static final String WALK = "walk";
 	/* Property indicating player is using auto-walk. */
-	public final static String AUTOWALK = "autowalk";
+	public static final String AUTOWALK = "autowalk";
 	/* Property indicating player is using continuous movement. */
-	public final static String MOVE_CONTINUOUS = MOVE_CONTINUOUS_PROPERTY;
-	public final static String COND_STOP = "conditional_stop";
+	public static final String MOVE_CONTINUOUS = MOVE_CONTINUOUS_PROPERTY;
+	public static final String COND_STOP = "conditional_stop";
 
-	public final static String BESTIARY = "bestiary";
+	public static final String BESTIARY = "bestiary";
+
+	public static final String ACHIEVEMENTLOG = "achievementlog";
 
 	private Actions() {
 		// hide constructor

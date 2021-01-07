@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
+import games.stendhal.common.constants.Actions;
+
 /**
  * Manages Slash Action Objects.
  */
@@ -91,6 +93,7 @@ public class SlashActionRepository {
 		actions.put("p", groupMessage);
 		actions.put("profile", new ProfileAction());
 		actions.put("travellog", new TravelLogAction());
+		actions.put(Actions.ACHIEVEMENTLOG, new AchievementLogAction());
 
 		actions.put("quit", new QuitAction());
 
