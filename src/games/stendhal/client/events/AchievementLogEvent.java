@@ -11,8 +11,6 @@
  ***************************************************************************/
 package games.stendhal.client.events;
 
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 
 import games.stendhal.client.entity.RPEntity;
@@ -27,7 +25,7 @@ public class AchievementLogEvent extends Event<RPEntity> {
 	@Override
 	public void execute() {
 		try {
-			AchievementLogController.get().showAchievementList(Arrays.asList(event.get("achievements").split(";")));
+			AchievementLogController.get().showAchievementList(event.get("achievements").split(";"));
 		} catch (RuntimeException e) {
 			logger.error("Failed to process progress status. Event: " + event, e);
 		}

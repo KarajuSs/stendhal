@@ -12,6 +12,8 @@
 package games.stendhal.client.gui.achievementlog;
 
 import java.awt.Window;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -52,18 +54,15 @@ public class AchievementLogController {
 	private AchievementLogController() {
 	}
 
-	private List<String> setList(List<String> list) {
-		if (aList == null) {
-			aList = list;
-		}
-		return aList;
+	private List<String> setList(String[] list) {
+		return aList = new ArrayList<>(Arrays.asList(list));
 	}
 
 	public List<String> getList() {
 		return aList;
 	}
 
-	public void showAchievementList(final List<String> list) {
+	public void showAchievementList(final String[] list) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
