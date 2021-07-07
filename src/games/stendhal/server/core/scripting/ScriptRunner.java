@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,6 +17,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -34,7 +39,7 @@ import marauroa.common.game.RPAction;
 
 
 /**
- * ServerExtension to load Groovy and Java scripts.
+ * ServerExtension to load Groovy, Lua, and Java scripts.
  *
  * @author intensifly
  */
@@ -46,8 +51,11 @@ public class ScriptRunner extends StendhalServerExtension implements
 	private final Map<String, ScriptingSandbox> scripts;
 
 	private final String scriptDir = "data/script/";
+	private final String modsDir = "data/mods/";
 
 	private static final Logger logger = Logger.getLogger(ScriptRunner.class);
+
+	private final String[] supported_ext = {"groovy", "lua"};
 
 	/**
 	 * Constructor for ScriptRunner.
@@ -60,21 +68,39 @@ public class ScriptRunner extends StendhalServerExtension implements
 
 	@Override
 	public void init() {
+		initLua();
+
 		final URL url = getClass().getClassLoader().getResource(scriptDir);
 		if (url != null) {
 			final File dir = new File(url.getFile());
-			final String[] strs = dir.list(new FilenameFilter() {
-				@Override
-				public boolean accept(final File dir, final String name) {
-					return name.endsWith(".groovy");
-				}
-			});
+			List<String> strs = new ArrayList<>();
 
-			for (int i = 0; i < strs.length; i++) {
+			try {
+				final Stream<Path> paths = Files.walk(Paths.get(dir.toString())).filter(Files::isRegularFile);
+				for (String filepath: paths.map(s -> s.toString()).collect(Collectors.toList())) {
+					// trim absolute path prefix
+					filepath = filepath.substring(dir.toString().length() + 1);
+
+					for (String ext: supported_ext) {
+						ext = "." + ext;
+
+						if (filepath.endsWith(ext)) {
+							strs.add(filepath);
+							break;
+						}
+					}
+				}
+			} catch (final IOException e1) {
+				logger.error("Error while recursing scripts");
+				e1.printStackTrace();
+				return;
+			}
+
+			for (int i = 0; i < strs.size(); i++) {
 				try {
-					perform(strs[i]);
+					perform(strs.get(i));
 				} catch (final Exception e) {
-					logger.error("Error while loading " + strs[i] + ":", e);
+					logger.error("Error while loading " + strs.get(i) + ":", e);
 				}
 			}
 		}
@@ -83,7 +109,11 @@ public class ScriptRunner extends StendhalServerExtension implements
 
 	@Override
 	public synchronized boolean perform(final String name) {
-		return perform(name, "load", null, null);
+		return perform(name, false);
+	}
+
+	public synchronized boolean perform(final String name, final boolean ismod) {
+		return perform(name, "load", null, null, ismod);
 	}
 
 	// need that function to filter scripts names
@@ -114,8 +144,15 @@ public class ScriptRunner extends StendhalServerExtension implements
 	}
 
 	private synchronized boolean perform(final String name, final String mode,
-			final Player player, final List<String> args) {
+			final Player player, final List<String> args, final boolean ismod) {
 		boolean ret = false;
+
+		final String rootDir;
+		if (ismod) {
+			rootDir = modsDir;
+		} else {
+			rootDir = scriptDir;
+		}
 
 		// block exploit
 		if (name.indexOf("..") >= 0) {
@@ -151,7 +188,10 @@ public class ScriptRunner extends StendhalServerExtension implements
 			// if we want to execute we'll also load it if needed
 			if (script == null) {
 				if (trimmedName.endsWith(".groovy")) {
-					script = new ScriptInGroovy(scriptDir + trimmedName);
+					script = new ScriptInGroovy(rootDir + trimmedName);
+					ignoreExecute = true;
+				} else if (trimmedName.endsWith(".lua")) {
+					script = new ScriptInLua(rootDir + trimmedName);
 					ignoreExecute = true;
 				} else if (trimmedName.endsWith(".class")) {
 					script = new ScriptInJava(trimmedName);
@@ -174,6 +214,10 @@ public class ScriptRunner extends StendhalServerExtension implements
 		return (ret);
 	}
 
+	private synchronized boolean perform(final String name, final String mode,
+			final Player player, final List<String> args) {
+		return perform(name, mode, player, args, false);
+	}
 
 	/**
 	 * Fetch classes of available scripts.
@@ -208,34 +252,48 @@ public class ScriptRunner extends StendhalServerExtension implements
 	private boolean listScripts(final Player player, List<String> filterTerm) {
 
 		StringBuilder stringBuilder = new StringBuilder("list of available scripts:\n");
-		List<String> allScripts=new LinkedList<String>();
+		List<String> allScripts = new LinkedList<String>();
 
-		// *.groovy scripts is in data/script/
+		// *.groovy scripts in data/script/
 		final File dirGroovy = new File(scriptDir);
 		List<String> scriptsGroovy;
-		final String[] lg=dirGroovy.list(new FilenameFilter() {
+		final String[] lg = dirGroovy.list(new FilenameFilter() {
 				@Override
 				public boolean accept(final File dir, final String name) {
 					return (name.endsWith(".groovy") && (name.indexOf('$') == -1));
 				}
 			});
-		if(lg!=null) {
-			scriptsGroovy=Arrays.asList(lg);
+		if(lg != null) {
+			scriptsGroovy = Arrays.asList(lg);
 		} else {
-			scriptsGroovy=new LinkedList<String>();
+			scriptsGroovy = new LinkedList<String>();
+		}
+
+		// *.lua scripts in data/script/
+		List<String> scriptsLua;
+		final String[] ll = dirGroovy.list(new FilenameFilter() {
+			@Override
+			public boolean accept(final File dir, final String name) {
+				return (name.endsWith(".lua") && (name.indexOf('$') == -1));
+			}
+		});
+		if (ll != null) {
+			scriptsLua = Arrays.asList(ll);
+		} else {
+			scriptsLua = new LinkedList<String>();
 		}
 
 		// *.class scripts could be in data/script/games/stendhal/server/script/
-		final File dirClasses = new File(scriptDir+"games/stendhal/server/script/");
+		final File dirClasses = new File(scriptDir + "games/stendhal/server/script/");
 		List<String> scriptsJava;
-		final String[] lj=dirClasses.list(new FilenameFilter(){
+		final String[] lj = dirClasses.list(new FilenameFilter(){
 				@Override
 				public boolean accept(final File dir, final String name) {
 					// remove filenames with '$' inside because they are inner classes
 					return (name.endsWith(".class") && (name.indexOf('$') == -1));
 				}
 			});
-		if(lj!=null) {
+		if(lj != null) {
 		    scriptsJava = Arrays.asList(lj);
 		} else {
 			scriptsJava = new LinkedList<String>();
@@ -253,7 +311,7 @@ public class ScriptRunner extends StendhalServerExtension implements
 			});
 
 			for (final Class<?> clazz : dir) {
-				    scriptsJava.add(clazz.getSimpleName()+".class");
+				    scriptsJava.add(clazz.getSimpleName() + ".class");
 			}
 
 		} catch (final ClassNotFoundException e) {
@@ -263,12 +321,13 @@ public class ScriptRunner extends StendhalServerExtension implements
 		}
 
 		allScripts.addAll(scriptsGroovy);
+		allScripts.addAll(scriptsLua);
 		allScripts.addAll(scriptsJava);
 
 		stringBuilder.append("results for /script ");
 		if (!filterTerm.isEmpty()) {
-			for (int i=0; i<filterTerm.size(); i++) {
-				stringBuilder.append(" "+ filterTerm.get(i));
+			for (int i = 0; i < filterTerm.size(); i++) {
+				stringBuilder.append(" " + filterTerm.get(i));
 			}
 			stringBuilder.append(":\n");
 		}
@@ -279,11 +338,11 @@ public class ScriptRunner extends StendhalServerExtension implements
 				int j = 0;
 				for (j = 0; j < filterTerm.size(); j++) {
 					if (allScripts.get(i).matches(searchTermToRegex(filterTerm.get(j)))) {
-						stringBuilder.append(allScripts.get(i)+"\n");
+						stringBuilder.append(allScripts.get(i) + "\n");
 					}
 				}
 			} else {
-				stringBuilder.append(allScripts.get(i)+"\n");
+				stringBuilder.append(allScripts.get(i) + "\n");
 			}
 		}
 
@@ -364,7 +423,7 @@ public class ScriptRunner extends StendhalServerExtension implements
 				}
 				StringBuilder sb = new StringBuilder(cmd);
 				// concatenating script arguments
-				for (int i = scp+1; i<parts.size(); i++) {
+				for (int i = scp + 1; i < parts.size(); i++) {
 					 sb.append(' ').append(parts.get(i));
 				}
 				cmd = sb.toString();
@@ -384,7 +443,7 @@ public class ScriptRunner extends StendhalServerExtension implements
 
 			// execute script
 			script = script.trim();
-			if ("list".equals(mode) || script.endsWith(".groovy") || script.endsWith(".class")) {
+			if ("list".equals(mode) || script.endsWith(".groovy") || script.endsWith(".lua") || script.endsWith(".class")) {
 				boolean res = false;
 				res = perform(script, mode, player, args);
 				if (res) {
@@ -426,10 +485,71 @@ public class ScriptRunner extends StendhalServerExtension implements
 					}
 				}
 			} else {
-				text = "Invalid filename: It should end with .groovy or .class";
+				text = "Invalid filename: It should end with .groovy, .lua, or .class";
 			}
 		}
 
 		player.sendPrivateText(text);
+	}
+
+	/**
+	 * Initializes Lua globals & loads built-in scripts.
+	 */
+	private void initLua() {
+		ScriptInLua.getInstance().init();
+		initLuaMods();
+	}
+
+	/**
+	 * Retrieves Lua module initialization scripts from "data/mods/" directory.
+	 *
+	 * Note: These modules are separate from the regular "data/script" scripts & must
+	 *       be named "init.lua".
+	 *
+	 * @return
+	 * 		List of loadable Lua scripts.
+	 */
+	private List<String> getLuaMods() {
+		final List<String> modlist = new ArrayList<String>();
+
+		final URL url = getClass().getClassLoader().getResource(modsDir);
+		if (url != null) {
+			final String modroot = url.getFile();
+
+			// regular files in root mod directory are ignored
+			for (final File dir: new File(modroot).listFiles(File::isDirectory)) {
+				try {
+					final Stream<Path> paths = Files.walk(Paths.get(dir.toString())).filter(Files::isRegularFile);
+					for (String filepath: paths.map(s -> s.toString()).collect(Collectors.toList())) {
+						// trim absolute path prefix
+						filepath = filepath.substring(modroot.length() - 1);
+
+						// mods must use an initialization script name "init.lua"
+						if (new File(filepath).getName().equals("init.lua")) {
+							modlist.add(filepath);
+						}
+					}
+				} catch (final IOException e1) {
+					logger.error("Error while recursing mods");
+					e1.printStackTrace();
+					return null;
+				}
+			}
+		}
+
+		return modlist;
+	}
+
+	/**
+	 * Initializes Lua init scripts in mods directory.
+	 */
+	private void initLuaMods() {
+		for (final String modpath: getLuaMods()) {
+			try {
+				perform(modpath, true);
+			} catch (final Exception e) {
+				logger.error("Error while loading mod " + modpath + ":", e);
+			}
+		}
 	}
 }

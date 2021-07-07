@@ -84,7 +84,7 @@ public class CodedMessageFromFinnFarmer extends AbstractQuest {
 			return res;
 		}
 
-		res.add("I aggreed to deliver the message.");
+		res.add("I agreed to deliver the message.");
 		if (questState.equals("deliver_to_george")) {
 			return res;
 		}
@@ -94,7 +94,7 @@ public class CodedMessageFromFinnFarmer extends AbstractQuest {
 			return res;
 		}
 
-		res.add("I completed my mission as messenger. Finn Farmer went almost crazy of join when I told him George's answer.");
+		res.add("I completed my mission as messenger. Finn Farmer went almost crazy with joy when I told him George's answer.");
 		return res;
 	}
 
@@ -298,8 +298,8 @@ public class CodedMessageFromFinnFarmer extends AbstractQuest {
 		step2();
 		step3();
 		fillQuestInfo(
-			"Coded message from Finn Farmer",
-			"Finn Farmer, has imporant, secret information for George.",
+			"Coded Message from Finn Farmer",
+			"Finn Farmer has important, secret information for George.",
 			false);
 	}
 

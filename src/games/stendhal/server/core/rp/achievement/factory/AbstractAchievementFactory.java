@@ -60,6 +60,7 @@ public abstract class AbstractAchievementFactory {
 		List<AbstractAchievementFactory> list = new LinkedList<AbstractAchievementFactory>();
 		//add new created factories here
 		list.add(new AdosItemQuestAchievementsFactory());
+		list.add(new DeathmatchAchievementFactory());
 		list.add(new ExperienceAchievementFactory());
 		list.add(new FightingAchievementFactory());
 		list.add(new FriendAchievementFactory());
@@ -73,6 +74,8 @@ public abstract class AbstractAchievementFactory {
 		list.add(new UndergroundZoneAchievementFactory());
 		list.add(new KirdnehItemAchievementFactory());
 		list.add(new MithrilbourghEnemyArmyAchievementFactory());
+		list.add(new CommerceAchievementFactory());
+		list.add(new KillBlordroughsAchievementFactory());
 		return list;
 	}
 }

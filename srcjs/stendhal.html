@@ -2,7 +2,7 @@
 <html>
 <!--
 /***************************************************************************
- *                   (C) Copyright 2014-2017 - Stendhal                    *
+ *                   (C) Copyright 2014-2020 - Stendhal                    *
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,6 +19,7 @@
 	</head>
 
 	<body id="body" class="background">
+	<div id="client">
 		<div id="leftColumn" class="unselectable">
 			<canvas id="minimap" width="128" height="128"></canvas>
 			<div id="zoneinfo"></div>
@@ -28,7 +29,7 @@
 			</div>
 		</div>
 
-		<canvas id="gamewindow" width="640" height="480">Sorry, this pages only works in modern web browsers.</canvas>
+		<canvas id="gamewindow" width="640" height="480" tabindex="-1">Sorry, this pages only works in modern web browsers.</canvas>
 
 		<div id="rightColumn">
 			<button id="menubutton">▼&nbsp;&nbsp;Menu</button>
@@ -44,6 +45,7 @@
 					<div id="cloak0" class="itemSlot"></div>
 					<div id="legs0" class="itemSlot"></div>
 					<div id="feet0" class="itemSlot"></div>
+					<div id="pouch0" class="itemSlot"></div>
 				</div>
 			</div>
 
@@ -82,8 +84,9 @@
 				<div id="portfolio3" class="itemSlot"></div>
 				<div id="portfolio4" class="itemSlot"></div>
 				<div id="portfolio5" class="itemSlot"></div>
-				<!-- <div id="portfolio6" class="itemSlot"></div> -->
-				<!-- <div id="portfolio7" class="itemSlot"></div> -->
+				<div id="portfolio6" class="itemSlot"></div>
+				<div id="portfolio7" class="itemSlot"></div>
+				<div id="portfolio8" class="itemSlot"></div>
 			</div>
 		</div>
 
@@ -91,6 +94,12 @@
 		<div id="chat"></div>
 
 		<div id="popupcontainer"></div>
+		</div>
+
+		<div id="loginpopup" class="popupdiv">
+			Cross world teleport initiated. Please hold tight.
+			<div class="progressbar"><div class="progressbarvalue">&nbsp;</div></div>
+		</div>
 
 		<script type="text/javascript" src="stendhal-compiled.js"></script>
 	</body>

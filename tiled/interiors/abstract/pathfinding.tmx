@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
 <map version="1.0" orientation="orthogonal" width="64" height="64" tilewidth="32" tileheight="32">
- <tileset firstgid="1" name="../../tileset/ground/ground.png" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="ground/ground" tilewidth="32" tileheight="32">
   <image source="../../tileset/ground/ground.png" trans="ffffff"/>
  </tileset>
- <tileset firstgid="34" name="../../tileset/plant/stump/small_stump.png" tilewidth="32" tileheight="32">
+ <tileset firstgid="34" name="plant/stump/small_stump" tilewidth="32" tileheight="32">
   <image source="../../tileset/plant/stump/small_stump.png" trans="ffffff"/>
  </tileset>
- <tileset firstgid="38" name="../../tileset/logic/creature/rodent.png" tilewidth="32" tileheight="32">
+ <tileset firstgid="38" name="logic/creature/rodent" tilewidth="32" tileheight="32">
   <image source="../../tileset/logic/creature/rodent.png"/>
  </tileset>
- <tileset firstgid="43" name="../../tileset/logic/collision.png" tilewidth="32" tileheight="32">
+ <tileset firstgid="46" name="logic/collision" tilewidth="32" tileheight="32">
   <image source="../../tileset/logic/collision.png"/>
+ </tileset>
+ <tileset firstgid="47" name="logic/portal" tilewidth="32" tileheight="32">
+  <image source="../../tileset/logic/portal.png"/>
  </tileset>
  <layer name="0_floor" width="64" height="64">
   <data encoding="base64" compression="gzip">
@@ -36,17 +39,17 @@ htWjy7xv7D0ie8Gn0c3HytvdVf5P/D5mnQ8BAAAgl9/k56rVBwAA6MQfFivIIwBAAAA=
  </layer>
  <layer name="objects" width="64" height="64">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAAO3OMQ0AAAgDsKnBv0Q07CIhrYImAAAAAAAAAAAANOY6AAAAAAAAwEsLuyJ13wBA
-AAA=
+   H4sIAAAAAAAAAO3RAQkAAAgEMdNYwP7djPEoW4KDqwIAgHsmHUCU/wAAAAAAQFqnAwAAAAAAAHhp
+ATZqwwkAQAAA
   </data>
  </layer>
  <layer name="collision" width="64" height="64" opacity="0.37">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAAO2XSRKFIAwFvc+///3+yo2lkuGFye4qV8YkDSpwHAAAAAAA8/J7uO7u7ciT/9OY
+   H4sIAAAAAAAAAO2XSRKFIAwFPdG///H+yo2lkuGFye4qV8YkDSpwHAAAAAAA8/J7uO7u7ciT/9OY
 7Abzr42z5Jnp3ert3zu3qna1f+RS1VbGVfYwsjb+43sYWRv/8T1E8rb+mTv4W9eInf2jcTPs/99y
 W+qq57D3/0jpn83liVOBf+zeXQz+uVyeOBWz+fdmBn/PGqdeD6/9Z87CmbH07A+UVI2lt05mf5gB
 f+31VqfVg+eZUUR7an3fylqVKP2ralWCvy3GszZac1WfhS1Ez8Sj+1bxZf/onnCG9zZL1GF17xOv
-xy7zfnL1yOwFV2M3Hy9fd1f5r/h99DofAgAAAAAAAICNPyxVcm4AQAAA
+xy7zfnL1yOwFV2M3Hy9fd1f5r/h99DofAgAAAAAAAICNPz+TRj0AQAAA
   </data>
  </layer>
  <layer name="protection" width="64" height="64">

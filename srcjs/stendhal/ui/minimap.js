@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2003-2017 - Stendhal                    *
+ *                   (C) Copyright 2003-2021 - Stendhal                    *
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -33,6 +33,10 @@ stendhal.ui.minimap = {
 	},
 
 	updateBasePosition: function() {
+		if (!marauroa.me)
+		{
+			return;
+		}
 		stendhal.ui.minimap.xOffset = 0;
 		stendhal.ui.minimap.yOffset = 0;
 
@@ -69,19 +73,19 @@ stendhal.ui.minimap = {
 			|| stendhal.data.map.currentZoneName === "int_adventure_island") {
 
 			stendhal.ui.minimap.scale = 10;
-	
+
 			stendhal.ui.minimap.zoneChange();
 			stendhal.ui.minimap.updateBasePosition();
 			var canvas = document.getElementById("minimap");
-	
+
 			var ctx = canvas.getContext("2d");
 			// IE does not support ctx.resetTransform(), so use the following workaround:
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
-	
+
 			// The area outside of the map
 			ctx.fillStyle = "#606060";
 			ctx.fillRect(0, 0, stendhal.ui.minimap.width, stendhal.ui.minimap.height);
-	
+
 			ctx.translate(Math.round(-stendhal.ui.minimap.xOffset), Math.round(-stendhal.ui.minimap.yOffset));
 			stendhal.ui.minimap.drawBackground(ctx);
 			stendhal.ui.minimap.drawEntities(ctx);
@@ -174,6 +178,11 @@ stendhal.ui.minimap = {
 					x: x.toString(),
 					y: y.toString()
 			};
+
+			if ("type" in e && e["type"] === "dblclick") {
+				action["double_click"] = "";
+			}
+
 			marauroa.clientFramework.sendAction(action);
 		}
 	}

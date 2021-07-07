@@ -9,6 +9,7 @@ create table if not exists character_stats
   level integer,
   outfit varchar(32),
   outfit_colors varchar(100),
+  outfit_layers varchar(255),
   xp integer,
   money integer,
 
@@ -29,26 +30,26 @@ create table if not exists character_stats
   legs varchar(32),
   feet varchar(32),
   cloak varchar(32),
+  finger varchar(32),
 
   zone varchar(50),
 
   timedate timestamp default CURRENT_TIMESTAMP,
   lastseen timestamp null,
   primary key(name)
-  )
- ;
+  );
+
 CREATE INDEX IF NOT EXISTS i_character_stats_name ON character_stats(name);
 
 create table if not exists halloffame
   (
   id integer auto_increment not null,
   charname varchar(32) not null,
-  fametype char(1) not null,
+  fametype char(10) not null,
   points integer not null,
 
   primary key(id)
-  ) 
- ;
+  );
 
 CREATE INDEX IF NOT EXISTS i_halloffame_charname ON halloffame(charname);
 
@@ -56,7 +57,7 @@ create table if not exists halloffame_archive_recent
   (
   id integer auto_increment not null,
   charname varchar(32) not null,
-  fametype char(1) not null,
+  fametype char(10) not null,
   rank integer not null,
   points integer not null,
   day date not null,
@@ -70,13 +71,12 @@ create table if not exists halloffame_archive_alltimes
   (
   id integer auto_increment not null,
   charname varchar(32) not null,
-  fametype char(1) not null,
+  fametype char(10) not null,
   rank integer not null,
   points integer not null,
   day date not null,
   primary key(id)
-  ) 
- ;
+  );
 
 CREATE INDEX IF NOT EXISTS i_halloffame_archive_alltimes_day_charname ON halloffame_archive_alltimes(day, charname);
 
@@ -124,25 +124,26 @@ CREATE TABLE IF NOT EXISTS kills (
   PRIMARY KEY (id)
 );
 
-CREATE INDEX IF NOT EXISTS i_kills_killed ON kills (killed_type, killed);
-CREATE INDEX IF NOT EXISTS i_kills_killer ON kills (killer_type, killer);
+CREATE INDEX IF NOT EXISTS i_kills_day_killed ON kills (day, killed);
+CREATE INDEX IF NOT EXISTS i_kills_killer_day ON kills (killer, day);
 
 
 CREATE TABLE IF NOT EXISTS npcs (
-  id         INTEGER AUTO_INCREMENT NOT NULL,
-  name       VARCHAR(64),
-  title      VARCHAR(64),
-  class      VARCHAR(64),
-  outfit     VARCHAR(32),
-  level      INTEGER,
-  hp         INTEGER,
-  base_hp    INTEGER,
-  image      VARCHAR(255),
-  zone       VARCHAR(64),
-  x          INTEGER,
-  y          INTEGER,
-  description      VARCHAR(1000),
-  job       VARCHAR(1000),
+  id            INTEGER AUTO_INCREMENT NOT NULL,
+  name          VARCHAR(64),
+  title         VARCHAR(64),
+  class         VARCHAR(64),
+  outfit        VARCHAR(32),
+  outfit_layers VARCHAR(255),
+  level         INTEGER,
+  hp            INTEGER,
+  base_hp       INTEGER,
+  image         VARCHAR(255),
+  zone          VARCHAR(64),
+  x             INTEGER,
+  y             INTEGER,
+  description   VARCHAR(1000),
+  job           VARCHAR(1000),
   PRIMARY KEY (id)
 );
 
@@ -227,6 +228,7 @@ CREATE TABLE IF NOT EXISTS achievement (
     description VARCHAR(254),
     base_score INTEGER,
     active INTEGER,
+    reached INTEGER,
     PRIMARY KEY(id)
 );
 CREATE UNIQUE INDEX IF NOT EXISTS i_achievement_identifier ON achievement(identifier);
@@ -274,7 +276,7 @@ create table if not exists trade
   quantity  integer,
   price     integer,
   stats     varchar(255),
-  timedate timestamp default CURRENT_TIMESTAMP,
+  timedate  timestamp default CURRENT_TIMESTAMP,
   primary key(id)
   );
 CREATE INDEX IF NOT EXISTS i_trade_timedate ON trade(timedate);
@@ -289,6 +291,20 @@ CREATE TABLE IF NOT EXISTS searchindex
   searchscore INTEGER,
   PRIMARY KEY(id)
   );
-  
+
 CREATE INDEX IF NOT EXISTS i_searchindex_searchterm ON searchindex(searchterm);
 CREATE INDEX IF NOT EXISTS i_searchindex_entitytype_entityname ON searchindex(entitytype, entityname);
+
+
+CREATE TABLE IF NOT EXISTS group_quest
+  (
+  id          INTEGER auto_increment NOT NULL,
+  questname   VARCHAR(64),
+  charname    VARCHAR(32),
+  itemname    VARCHAR(32),
+  quantity    INTEGER,
+  day         DATE NOT NULL,
+  PRIMARY KEY(id)
+  );
+
+CREATE INDEX IF NOT EXISTS i_group_quest_questname ON group_quest(questname);

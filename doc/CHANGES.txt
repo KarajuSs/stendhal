@@ -2,93 +2,384 @@ Changelog
 ---------
 ---------
 
+1.36
+*world*
+- building Mine Town Revival Weeks as group quest
+- new item: lamp
+- new masks
+
+*chat*
+- New Discord Server: https://discord.gg/sw7kKgu
+
+*code*
+- batched database operations to improve performance
+
+*fixes*
+- fixed Bobbing for Apples
+- map fixes
+- do not put money into disabled money pouch
+
+1.35
+
+*world*
+- new items:
+  - ice shield: def 40, ice 0.9, fire 1.15, poison resist 50%
+- new achievements:
+  - Bobbing for Apples: harvest or loot 1,000 apples
+  - Deathmatch Helper: aid other players in 25 rounds of deathmatch
+  - Deathmatch Companion: aid other players in 50 rounds of deathmatch
+  - Deathmatch Convoy: aid other players in 100 rounds of deathmatch
+  - Magic Supplies: loot a complete magic equipment set
+- NPC changes:
+  - King Edward sells Deniran City scrolls
+  - Rengard visits 0_ados_mountain_n2_w2 instead of 0_semos_mountain_n2_w2
+- small improvements to various maps
+
+*webclient*
+- show progress bar on login
+
+*engine*
+- massive improvements to the database queue
+- support for recent versions of Java
+
+*other*
+- started to work on a list of all contributors, please help to add to it:
+  https://github.com/arianne/stendhal/blob/master/doc/contributors.md
+
+1.34
+
+*world*
+- new zones/maps:
+  - Deniran Pawn Shop
+  - Deniran Psychic Parlor
+  - Atlantis Potions Shop
+- new NPCs:
+  - Jimbo (Deniran Grocery Store)
+  - Omura Sumitada (Assassin's Dojo)
+  - Akutagawa (Assassin's Dojo)
+  - Lovena (Deniran Psychic Parlor)
+  - Rengard (a wandering adventurer)
+  - Pierre (outfit lender in Deniran Dress Shop)
+  - Ryla (greeter in Atlantis)
+  - Mirielle (Atlantis Potions Shop)
+  - Sawyer (Deniran Pawn Shop)
+  - Harley (Deniran Pawn Shop)
+  - Raven (Deniran Weapons Shop)
+- new items:
+  - bestiary
+  - training sword
+  - enhanced imperial ring (atk +1, def +1)
+- new achievements:
+  - Royally Endowed: loot a complete royal equipment set
+  - Deep Sea Fisherman: kill 500 sharks, kraken, & neo kraken
+  - Zombie Apocalypse: kill 500 zombies
+  - Chicken Nuggets: kill 100 of each type of fowl
+  - Pachyderm Mayhem: kill 100 of each type of pachyderm
+  - Imperialist Dominator: finish Kill Blordroughs quest 50 times
+  - Imperialist Dictator: finish Kill Blordroughs quest 100 times
+- achievement changes:
+  - ice giant added as requirement for "David vs. Goliath"
+  - baby angel added as requirement for "Heavenly Wrath"
+  - chess pieces no longer required for "Legend" & "Team Player" achievements
+  - "Spelunker" fixed so players do not have to revisit -2_deniran_caves_n & -2_deniran_caves_nw
+- enemy changes:
+  - giant bat & giant killer bat drop ham
+  - woolly mammoth drops ham
+  - penguin drops chicken instead of meat
+  - dodo drops chicken instead of ham
+  - baby pegasus is now non-aggressive & retreats when attacked
+  - fixed dimensions of dragon corpses
+  - blordrough general attacks weakest
+  - legendary ice elemental level & stats increased
+  - venom gland is now regular drop from king cobra
+- new enemy sounds:
+  - werewolf
+- quest changes:
+  - 5 unicorn horns added to Kirdneh Museum quest
+  - Fix KillEnemyArmy-Quest: All Blordroughs are counted
+- new quests:
+  - Collect Enemy Data
+- dojo area for training ATK stat
+- player is notified when stats level up
+- new sound effect for level up
+- commerce:
+  - sell value of mandragora reduced to 300
+  - sell value of venom gland reduced to 800
+  - sell value of disease poison reduced to 1200
+
+*fixes*
+- fixed "Westerner" achievement
+- fixed kraken & neo kraken corpse dimensions
+
+*graphics*
+- mithrilbourgh army enemies now have same skin color as mithrilbourgh wizard
+- new sprite for demon enemy
+
+*Java client*
+- rings can now be animated
+- optional health bar in stats panel
+
+
+1.33
+
+*webclient*
+- long touching to simulate right mouse button
+- added support for additional entities: rented signs, blackboards, blocks, house doors, doors
+- added online/offline icons on buddy list
+- added commands /drop, /adminlevel
+
+
+*world*
+- new regions/maps
+  - Atlantis
+  - Deniran Tannery
+- new NPCs
+  - Skinner Rawhide (Denrian Tannery)
+  - Zelan (Atlantis)
+- NPC changes
+  - elvish hat added to items that Lupos buys
+  - Adena sells olive oil & vinegar
+- new items:
+  - pelt (ingredient to make money pouch)
+  - leather thread (ingredient to make money pouch)
+  - leather needle (ingredient to make money pouch)
+  - imperial ring (+1 ATK)
+  - placid ring (shock resist: 0.33)
+  - magic plate legs
+  - magic plate boots
+  - rotary cutter (tool for making leather thread)
+  - royal armor, royal boots, royal cloak, royal helmet, royal legs, royal shield, royal dagger
+  - unicorn horn
+- new enemies:
+  - bull elephant, musth elephant
+  - giant bat, giant killer bat
+  - poison shroom
+  - polar bear
+  - tiny scarab, water scarab
+  - water demon
+  - white unicorn, black unicorn, golden unicorn
+  - baby pegasus, bronze pegasus, ivory pegasus, ebony pegasus
+  - solar centaur, glacier centaur, centaur king
+  - woolly mammoth
+  - giant gnome, giant gnomess
+  - neo kraken
+  - rysin dragon
+- enemy changes
+  - dimensions
+    - changed ent, old ent, & entwife to 2x1 to match sprites better
+  - new item drops
+    - imperial ring
+      - imperial veteran (@ 0.017)
+      - imperial elite archer (@ 0.05)
+    - insulated ring (cobra: @ 0.08)
+    - placid ring
+      - gargoyle (@ 0.005)
+      - ghost (@ 0.02)
+      - incorporeal armor (@ 0.3)
+      - musth elephant (@ 0.5)
+      - polar bear (@ 0.1)
+      - rysin dragon (@ 2.5)
+      - water scarab (@ 0.75)
+      - werewolf (@ 0.5)
+    - magic plate boots (cobra: @ 0.01)
+    - magic plate legs (king cobra: @ 0.25)
+    - pelt
+      - deer (@ 1.0)
+      - beaver (@ 1.0)
+      - bear (@ 2.0)
+      - black bear (@ 4.0)
+    - poison (cobra: 2-5 @ 20.0)
+  - sounds
+    - replaced kobold moan sounds with bark
+- players can enable a new pouch slot to carry money
+- quest changes
+  - items for Kirdneh Museum quest categorized for player level
+    - "easy": any level
+    - "medium": for players level 51+
+    - "hard": for players level 151+
+  - items added to Daily Item quest
+    - leather needle
+    - leather thread (20)
+    - pelt (5)
+  - items added to Kirdneh Museum quest
+    - medicinal ring (medium)
+    - scroll eraser (medium)
+    - ugmash (easy)
+- new quests
+  - Unicorn Horns for Zelan
+- new achievements:
+  - Westerner: visit all outside zones in Deniran region (easy score)
+  - Spelunker: visit all underground zones in Deniran region (hard score)
+  - Cheese Wiz: loot 2,000 cheese (easy score)
+  - Ham Hocks: loot 2,500 ham (easy score)
+  - Goldshower: loot 10,000 money (easy score)
+  - Green Thumb: harvest 20 of each type of growable flower (easy score)
+  - David vs. Goliath: kill 20 of each type of giant solo (medium score)
+  - Heavenly Wrath: kill 100 of each type of angel (hard score)
+  - Silver Bullet: kill 500 werewolves (medium score)
+  - Herbal Practitioner: harvest 20 of each type of herb found growing in Faiumoni (easy score)
+  - It's Happy Hour Somewhere: purchase 100 bottles of beer & 100 glasses of wine (easy score)
+  - Serenade the Siren: kill 10,000 gem mermaids (hard score)
+  - Imperialist Lackey: finish Kill Blordroughs quest 5 times (medium score)
+  - Imperialist Soldier: finish Kill Blordoughs quest 25 times (hard score)
+- new music
+  - -1_semos_yeti_cave
+  - levels -2 & -3 of Semos Catacombs
+  - Kikareukin Caves
+  - Deniran City
+  - Deniran Forest
+  - Deniran Caves
+  - Atlantis
+  - Semos Village, Plains, & Road
+  - Nalwor River
+  - taverns & inns in Ados, Fado, & Kirdneh cities
+- status effects
+  - shock resistance also alters duration of status
+
+*grapics*
+- made dark dagger image more distinct from night dagger
+- changed beer image to fit description better
+- restored old banana, grapes, pear, & watermelon images
+- new item images:
+  - golden helmet
+  - viking helmet
+  - aventail
+  - scroll eraser
+  - studded boots
+  - trophy helmet
+
+
+*classic client*
+- entities with "active_idle" attribute will cycle animation even if stopped
+- minimap recognizes Door entity as Portal
+
+*scripting*
+- added Lua support
+
+*fixes*
+- support for stairs portals in Tiled with continuous movement
+- fixed Door & LockedDoor entities not handling continuous movement
+- fixed cannot complete Traps for Klaas quest when Antivenom Ring quest activated
+- fixed cannot enter apothecary lab if Traps for Klaas quest restarted
+- enemy/creature shadow can be set with "shadow" value under "type" tag
+- removed multiple messages about no longer being shocked
+- fixed veil not being removed if renting from Timothy while wearing wedding gown
+- slash action "/removedetail" can be executed to manually remove the detail layer from a character
+- mithril cloak quest can be reset to an earlier state in case of lost items
+
+
 
 1.32
 *world*
-- turtles have appeared on Athor Island
+- new enemies
+  - amethyst mermaid, emerald mermaid, ruby mermaid, & sapphire mermaid
+  - cannibal warrior
+  - legendary ice elemental
+  - turtle
+- new NPCs
+  - Jameson (Apothecary Lab)
+  - Wanda (Denrian Potions Shop)
+  - Zoey (Ados Pet Sanctuary)
+- new food items:
+  - corn
+  - habanero pepper
+  - lemon
+  - olive oil
+  - pinto beans
+  - potato
+  - vinegar
+- other new items
+  - antivenom ring (resists poison effect)
+  - cobra venom (ingredient for Antivenom Ring quest)
+  - decent meal (item for Meal for Groongo quest)
+  - turtle shell ring (gives +1 defense)
+  - vial (ingredient for Antivenom Ring quest)
+- new quests
+  - Antivenom Ring
+  - Meal for Groongo
+- special outfits
+  - jester hat rented from Liliana is now full jester outfit
+  - Magic Boutique outfit lenders no longer rent out glasses
+- commerce
+  - McPegleg now buys blue legs
+  - D J Smith now buys ugmash & magic cloak
+  - Alexander now buys all blue equipment
+- new enemy drops
+  - banana: monkey
+  - carrot: cannibal woman & elder cannibal
+  - lemon: monkey
+  - olive oil: kalavan wisewoman
+  - pinto beans: ogre, elder ogre, ogre soldier, & superogre
+  - potato:
+      boar, cannibal woman, elder cannibal, kalavan housewife,
+      kavalavan peasant, & kalavan wisewoman
+  - vinegar: kalavan wisewoman
+  - sedative: imperial priest & imperial high priest
+  - turtle shell ring: gashadokuro
+  - ugmash:
+      amazoness giant, cave troll, elder giant, giant, giant kobold,
+      & master giant
 
 *graphics*
 - new corpses for cobras
-- new/reworked outfits:
-  - dress 75-76
-  - dress 91-98
-  - hair 47-48
-- new/reworked NPCs:
-  - Conual now wears a prison jumpsuit
-  - Marla (womanexoticdressnpc)
-  - Easter Bunny (easterbunnynpc)
-  - Hiro (sokobannpc)
-  - Jane (swimmer6npc)
-  - Marie-Henri (writernpc)
-  - Paul Sheriff (paulnpc)
-- new/reworked enemies:
-  - all beholders
-  - all goblins
-  - caiman & crocodile
-  - dodo
-  - mummy & royal mummy
-- new/reworked items:
-  - barbarian, black, dwarvish, leather, & plate armors
-  - bardiche
-  - small & hand axes
-  - chain & studded boots
-  - club
-  - enhanced mace
-  - dress
-  - tea
-  - elvish cloak
+- many sprites reworked, replaced, or cleaned scaling artifacts from sprites
+  - outfits
+  - NPCs
+  - enemies
+  - items
+- many replaced or reworked tilesets
+- new outfit layers that players can select
+  - mouth (meant for parts drawn on top of head such as mouth, lips, etc.)
+  - eyes (meant exclusively for eyes drawn on top of head)
+  - mask (meant for parts drawn on top of head but under hair such as glasses, masks, earrings, etc.)
+  - hat (meant for parts drawn on top of hair but behind detail layer; can be used for hats, helmets, masks, full body suits, etc.)
+- significant NPC outfit changes
+  - Conual, in Semos prison, now wears an inmate jumpsuit
 
 *audio*
-- new melee/attack sound effects
-- added enemy sound effects:
-  - bear & black bear
-  - chicken & mother hen
-  - dodo
-  - snake & grass snake
-  - wolf & big bad wolf
-  - horse & white horse
-  - rat, caverat, venomrat, razorrat, & zombie rat
-  - giantrat
-  - boar
-  - ram
-  - lion
-  - all orcs & mountain orcs
-  - tiger
-  - all gargoyles
-  - all goblins
-  - skeleton, warrior skeleton, elder skeleton, & demon skeleton
-  - death
-  - ghost
-  - imp & winged blue imp
-  - all kobolds
-  - cyclops
-  - all ogres
-  - troll & red troll
-  - gashadokuro
-  - balrog
-  - high lich
-  - vampire lord
-  - mummies
-- added pet sound effects:
-  - sheep
-- added NPC sound effects:
-  - Carmen
-  - Diogenes
-  - Margaret
-  - Nishiya
-  - Sato
+- new melee/attack/block sound effects
+- many new enemy/creature sound effects
+- many new NPC sound effects
 - added map ambiance sounds:
   - water sloshing in Ados City, Athor Island, Athor Ship, & Fado City
   - river in Nalwor Forest, Ados Snake Pit, Semos Mountain, & Semos Road
   - birds in Ados Wall, Ados City, Semos Mountain, Semos Village, Semos City, & Semos Road
-- added clang-dull-1 to combat "block" sounds
 - new wind ambiance to Ados Mountain/Rock & Kikareukin maps
 - new eat sound for pets
 - new coins sound for buyer/seller NPCs
 - new liquid fill sound for water spring source
+- new music added to maps:
+  - Fado City
+  - Kirdneh City
+  - Kalavan Castle interiors
+  - Kalavan City
+  - Kalavan City Gardens
+  - Ados market (0_ados_city_n2)
 
 *classic client*
 - option to draw shadows under certain entities
+
+*web client*
+- basic travel/progress log
+- single click looting from corpse windows
+- right click on items in inventory window
+- support instantianted zones (vault, maze, adventure island) by reading map information from server
+- automatically open and close corpse inventory based on content
+- mouse curson icons depending on possible interactions
+- play sound effects for fighting and creatures
+- added mute toggle
+- fixed teleclickmode
+- draw black background on small zones
+- improved readability of item amount
+- improved handling of mobile keyboard
+- improved direction changes with arrow keys
+- added support for more slash commands
+- fixed randomly missing outfit layers
+
+*fixes*
+- quests
+  - fix repeatable marker in Guess Kills & Find Rat Children
+- NPCs that turn around on collision will now stop if they have nowhere to go
 
 
 1.31
@@ -2638,7 +2929,6 @@ Aug 14, 2006
 - admins / game masters
   - /supportanswer <player> <text> admin command replys to <player> and all players with support-adminlevel
   - (*) Inspect, (*) Destroy and /alter #12345 can be used on items
-  - /support and /supportanswer can now be forwarded to irc://irc.freenode.net/#arianne-support
   - added a new jail map
   - admins can summon lots of monsters with /script plague.groovy 1 rat
   - admins can create signs using /script adminsign.groovy

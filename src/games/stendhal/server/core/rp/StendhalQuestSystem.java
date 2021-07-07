@@ -38,6 +38,9 @@ public class StendhalQuestSystem {
 
 	private final static List<IQuest> quests = new LinkedList<IQuest>();
 
+	private final static List<IQuest> cached = new ArrayList<>();
+	private static boolean cacheLoaded = false;
+
 
 	private StendhalQuestSystem() {
 		// hide constructor, this is a Singleton
@@ -66,7 +69,8 @@ public class StendhalQuestSystem {
 	 * Initializes the QuestSystem.
 	 */
 	public void init() {
-		loadQuest(new AdMemoriaInPortfolio());
+		//deactivated AdMemoriaInPortfolio
+		//loadQuest(new AdMemoriaInPortfolio());
 		loadQuest(new AdosDeathmatch());
 		loadQuest(new AmazonPrincess());
 		loadQuest(new AntivenomRing());
@@ -87,6 +91,7 @@ public class StendhalQuestSystem {
 		loadQuest(new ClubOfThorns());
 		loadQuest(new CoalForHaunchy());
 		loadQuest(new CodedMessageFromFinnFarmer());
+		loadQuest(new CollectEnemyData());
 		loadQuest(new CrownForTheWannaBeKing());
 		loadQuest(new DailyItemQuest());
 		loadQuest(new DailyMonsterQuest());
@@ -188,6 +193,9 @@ public class StendhalQuestSystem {
 			loadQuest(new PaperChase()); // needs to be loaded before SemosMineTownRevivalWeeks
 			loadQuest(new MineTownRevivalWeeks());
 		}
+		if (Occasion.MINETOWN_CONSTRUCTION) {
+			loadQuest(new MineTownRevivalWeeksConstruction());
+		}
 
 		TurnNotifier.get().notifyInTurns(10, new DumpGameInformationForWebsite());
 	}
@@ -219,9 +227,53 @@ public class StendhalQuestSystem {
 	 * @param quest Quest to add
 	 */
 	private void initQuestAndAddToWorld(final IQuest quest) {
+		if (isLoaded(quest)) {
+			logger.warn("Not loading previously loaded quest: " + quest.getName());
+			return;
+		}
+
 		logger.info("Loading Quest: " + quest.getName());
 		quest.addToWorld();
 		quests.add(quest);
+	}
+
+	/**
+	 * Caches a quest for loading later.
+	 *
+	 * @param quest
+	 * 		Quest to be cached.
+	 */
+	public void cacheQuest(final IQuest quest) {
+		// don't cache quests if server has already been initialized
+		if (cacheLoaded) {
+			loadQuest(quest);
+			return;
+		}
+
+		if (quest == null) {
+			logger.error("Attempted to cache null quest");
+			return;
+		}
+
+		if (cached.contains(quest)) {
+			logger.warn("Quest previously cached: " + quest.getName());
+			return;
+		}
+
+		cached.add(quest);
+	}
+
+	/**
+	 * Loads all quests stored in the cache.
+	 */
+	public void loadCachedQuests() {
+		for (final IQuest quest: cached) {
+			loadQuest(quest);
+		}
+
+		// empty cache
+		cached.clear();
+		cacheLoaded = true;
 	}
 
 	/**
@@ -467,6 +519,25 @@ public class StendhalQuestSystem {
 				return quest;
 			}
 		}
+
+		return null;
+	}
+
+	/**
+	 * gets the IQuest object for a quest.
+	 *
+	 * @param questSlot
+	 * 		Slot name used for quest.
+	 * @return
+	 * 		IQuest or <code>null</code> if it does not exist.
+	 */
+	public IQuest getQuestFromSlot(final String questSlot) {
+		for (final IQuest quest : quests) {
+			if (quest.getSlotName().equals(questSlot)) {
+				return quest;
+			}
+		}
+
 		return null;
 	}
 
@@ -554,5 +625,23 @@ public class StendhalQuestSystem {
 			}
 		}
 		return res;
+	}
+
+	/**
+	 * Checks if a quest instance has been added to the world.
+	 *
+	 * @param quest
+	 * 		<code>IQuest</code> instance to be checked.
+	 * @return
+	 * 		<code>true</code> if the instance matches stored quests.
+	 */
+	public boolean isLoaded(final IQuest quest) {
+		for (final IQuest loaded: quests) {
+			if (loaded.equals(quest)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

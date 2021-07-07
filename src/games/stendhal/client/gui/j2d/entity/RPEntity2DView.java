@@ -27,8 +27,11 @@ import java.util.Map;
 
 import games.stendhal.client.IGameScreen;
 import games.stendhal.client.entity.ActionType;
+import games.stendhal.client.entity.Creature;
 import games.stendhal.client.entity.Entity;
 import games.stendhal.client.entity.IEntity;
+import games.stendhal.client.entity.NPC;
+import games.stendhal.client.entity.Player;
 import games.stendhal.client.entity.RPEntity;
 import games.stendhal.client.entity.StatusID;
 import games.stendhal.client.entity.TextIndicator;
@@ -38,6 +41,7 @@ import games.stendhal.client.gui.j2d.entity.helpers.HorizontalAlignment;
 import games.stendhal.client.gui.j2d.entity.helpers.VerticalAlignment;
 import games.stendhal.client.gui.wt.core.WtWindowManager;
 import games.stendhal.client.sprite.AnimatedSprite;
+import games.stendhal.client.sprite.DataLoader;
 import games.stendhal.client.sprite.ImageSprite;
 import games.stendhal.client.sprite.Sprite;
 import games.stendhal.client.sprite.SpriteStore;
@@ -647,21 +651,58 @@ abstract class RPEntity2DView<T extends RPEntity> extends ActiveEntity2DView<T> 
 	 * 		Sprite
 	 */
 	protected Sprite addShadow(final Sprite sprite) {
-		final boolean draw_shadows = WtWindowManager.getInstance().getProperty("gamescreen.shadows", "false").equals("true");
+		final boolean draw_shadows = WtWindowManager.getInstance().getProperty("gamescreen.shadows", "true").equals("true");
 
-		if (draw_shadows) {
-			// draw a shadow under the image
-			final ImageSprite shadowed = new ImageSprite(SpriteStore.get().getSprite("data/sprites/shadow.png"));
-			final Graphics g = shadowed.getGraphics();
+		if (draw_shadows && entity.castsShadow()) {
+			/* XXX: would it be better to use a single shadow file & scale it?
+			 * XXX: would it be better to use an opaque image & set transparency here?
+			 */
 
-			// check if we need to scale shadow image
-			final int w_orig = sprite.getWidth();
-			final int h_orig = sprite.getHeight();
-			final int w_shadow = shadowed.getWidth();
-			final int h_shadow = shadowed.getHeight();
+			// custom shadows are created from images with "shadow-" prefix
+			String custom_shadow = entity.getShadowStyle();
+			if (custom_shadow == null && !(entity instanceof Player)) {
+				final String clazz = entity.getEntityClass();
+				final String subclazz = entity.getEntitySubclass();
 
-			// FIXME: need to scale shadow for sprites that are not 48x64
-			if (w_orig == w_shadow && h_orig == h_shadow) {
+				custom_shadow = "data/sprites/";
+				if (entity instanceof Creature) {
+					custom_shadow += "monsters/";
+				} else if (entity instanceof NPC) {
+					custom_shadow += "npc/";
+				}
+
+				if (subclazz == null && clazz != null) {
+					custom_shadow += clazz;
+				} else if (subclazz != null && clazz != null) {
+					custom_shadow += clazz + "/" + subclazz;
+				}
+
+				custom_shadow += "-shadow.png";
+			}
+
+			final ImageSprite shadowed;
+			final Graphics g;
+
+			// check if custom shadow image exists
+			if (custom_shadow != null && DataLoader.getResource(custom_shadow) != null) {
+				// draw shadow under the image
+				shadowed = new ImageSprite(SpriteStore.get().getSprite(custom_shadow));
+				g = shadowed.getGraphics();
+
+				sprite.draw(g, 0, 0);
+				return shadowed;
+			}
+
+			final int w_sprite = sprite.getWidth() / 3;
+			final int h_sprite = sprite.getHeight() / 4;
+			final String standard_shadow = "data/sprites/shadow/shadow-" + Integer.toString(w_sprite) + "x" + Integer.toString(h_sprite) + ".png";
+
+			// check if corresponding standard shadow image exists
+			if (DataLoader.getResource(standard_shadow) != null) {
+				// draw a shadow under the image
+				shadowed = new ImageSprite(SpriteStore.get().getSprite(standard_shadow));
+				g = shadowed.getGraphics();
+
 				sprite.draw(g, 0, 0);
 				return shadowed;
 			}
@@ -771,7 +812,7 @@ abstract class RPEntity2DView<T extends RPEntity> extends ActiveEntity2DView<T> 
 
 		final RPObject obj = entity.getRPObject();
 		if (!obj.has("no_attack")) {
-			/* FIXME: PassiveNPC no longer has "Attack" option in menu. Should this
+			/* FIXME: SilentNPC no longer has "Attack" option in menu. Should this
 			 *        code be changed?
 			 *
 			 * Menu is used to provide an alternate action for some entities (like

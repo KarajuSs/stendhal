@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2003-2017 - Stendhal                    *
+ *                   (C) Copyright 2003-2021 - Stendhal                    *
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -95,6 +95,16 @@ marauroa.rpobjectFactory["player"] = marauroa.util.fromProto(marauroa.rpobjectFa
 					new stendhal.ui.OutfitDialog();
 				}
 			});
+			list.push({
+				title: "Where",
+				action: function(entity) {
+					var action = {
+						"type": "where",
+						"target": playerName,
+					};
+					marauroa.clientFramework.sendAction(action);
+				}
+			})
 		}
 	/*
 
@@ -107,7 +117,7 @@ marauroa.rpobjectFactory["player"] = marauroa.util.fromProto(marauroa.rpobjectFa
 	},
 
 	isIgnored: function() {
-		if (!marauroa.me["!ignore"]) {
+		if (!marauroa.me || !marauroa.me["!ignore"]) {
 			return false;
 		}
 		var temp = marauroa.me["!ignore"]._objects;
@@ -146,7 +156,7 @@ marauroa.rpobjectFactory["player"] = marauroa.util.fromProto(marauroa.rpobjectFa
 			|| ((Math.abs(this["x"] - entity["x"]) < 15)
 				&& (Math.abs(this["y"] - entity["y"]) < 15)));
 	},
-	
+
 	getCursor: function(x, y) {
 		if (this.isVisibleToAction()) {
 			return "url(/data/sprites/cursor/look.png) 1 3, auto";

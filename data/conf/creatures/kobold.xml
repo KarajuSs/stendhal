@@ -26,7 +26,6 @@
       <item value="leather boots" quantity="[1,1]" probability="0.5"/>
       <item value="buckler" quantity="[1,1]" probability="0.5"/>
       <item value="knife" quantity="[1,1]" probability="0.5"/>
-      <item value="slim bottle" quantity="[1,1]" probability="0.25"/>
     </drops>
     <equips>
     </equips>
@@ -34,9 +33,10 @@
       <says>
         <noise state="idle follow fight" value="Grrrr! Wooof!"/>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="offensive"/>
@@ -68,7 +68,6 @@
       <item value="leather boots" quantity="[1,1]" probability="0.5"/>
       <item value="leather helmet" quantity="[1,1]" probability="1.0"/>
       <item value="wooden shield" quantity="[1,1]" probability="1.3"/>
-      <item value="slim bottle" quantity="[1,1]" probability="0.25"/>
     </drops>
     <equips>
     </equips>
@@ -76,9 +75,10 @@
       <says>
         <noise state="idle follow fight" value="Woorf wer warf!"/>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="offensive"/>
@@ -92,6 +92,7 @@
     <description>You see an archer kobold. It runs away from humans.</description>
     <attributes>
       <atk value="115"/>
+      <ratk value="115"/>
       <def value="28"/>
       <hp value="40"/>
       <speed value="0.5"/>
@@ -107,7 +108,6 @@
       <item value="wooden arrow" quantity="[3,12]" probability="6.0"/>
       <item value="leather boots" quantity="[1,1]" probability="0.5"/>
       <item value="wooden bow" quantity="[1,1]" probability="0.5"/>
-      <item value="slim bottle" quantity="[1,1]" probability="0.25"/>
     </drops>
     <equips>
       <slot name="lhand" item="wooden arrow" quantity="10000" />
@@ -117,9 +117,10 @@
       <says>
         <noise state="idle follow fight" value="Wssss! Warf wit!"/>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="offensive"/>
@@ -153,16 +154,16 @@
       <item value="studded boots" quantity="[1,1]" probability="0.5"/>
       <item value="leather helmet" quantity="[1,1]" probability="1.5"/>
       <item value="short sword" quantity="[1,1]" probability="1.0"/>
-      <item value="eared bottle" quantity="[1,1]" probability="0.25"/>
     </drops>
     <equips>
     </equips>
     <ai>
       <says>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="offensive"/>
@@ -196,16 +197,16 @@
       <item value="minor potion" quantity="[1,2]" probability="1.5"/>
       <item value="chain helmet" quantity="[1,1]" probability="3.0"/>
       <item value="plate shield" quantity="[1,1]" probability="0.5"/>
-      <item value="eared bottle" quantity="[1,1]" probability="0.25"/>
     </drops>
     <equips>
     </equips>
     <ai>
       <says>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="offensive"/>
@@ -227,7 +228,7 @@
     <level value="55"/>
     <experience value="2210"/>
     <respawn value="1650"/>
-    <corpse name="humanoid_2x2" harmless="bag_2x2" width="2" height="2"/>
+    <corpse name="humanoid_2x2"/>
     <drops>
       <item value="money" quantity="[10,60]" probability="100.0"/>
       <item value="greater potion" quantity="[1,4]" probability="50.0"/>
@@ -240,9 +241,10 @@
       <says>
         <noise state="idle follow fight" value="Hug?"/>
         <sound value="kobold-snort-01"/>
-        <sound value="kobold-groan-01"/>
-        <sound value="kobold-groan-02"/>
-        <sound value="kobold-groan-03"/>
+        <sound value="kobold_bark-01"/>
+        <sound value="kobold_bark-02"/>
+        <sound value="kobold_bark-03"/>
+        <sound value="kobold_bark-04"/>
       </says>
       <profile name="brave"/>
       <profile name="animal"/>

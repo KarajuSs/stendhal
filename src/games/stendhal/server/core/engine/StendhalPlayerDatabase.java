@@ -1,6 +1,5 @@
-/* $Id$ */
 /***************************************************************************
- *                   (C) Copyright 2003-2011 - Stendhal                    *
+ *                   (C) Copyright 2003-2019 - Stendhal                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -12,7 +11,11 @@
  ***************************************************************************/
 package games.stendhal.server.core.engine;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -21,6 +24,7 @@ import games.stendhal.server.core.engine.db.PendingAchievementDAO;
 import games.stendhal.server.core.engine.db.PostmanDAO;
 import games.stendhal.server.core.engine.db.StendhalBuddyDAO;
 import games.stendhal.server.core.engine.db.StendhalCharacterDAO;
+import games.stendhal.server.core.engine.db.StendhalGroupQuestDAO;
 import games.stendhal.server.core.engine.db.StendhalHallOfFameDAO;
 import games.stendhal.server.core.engine.db.StendhalItemDAO;
 import games.stendhal.server.core.engine.db.StendhalKillLogDAO;
@@ -28,6 +32,7 @@ import games.stendhal.server.core.engine.db.StendhalNPCDAO;
 import games.stendhal.server.core.engine.db.StendhalRPZoneDAO;
 import games.stendhal.server.core.engine.db.StendhalSearchIndexDAO;
 import games.stendhal.server.core.engine.db.StendhalWebsiteDAO;
+import games.stendhal.server.entity.Outfit;
 import marauroa.server.db.DBTransaction;
 import marauroa.server.db.JDBCSQLHelper;
 import marauroa.server.db.TransactionPool;
@@ -185,7 +190,63 @@ public class StendhalPlayerDatabase {
 		if (!transaction.doesColumnExist("buddy", "relationtype")) {
 			transaction.execute("ALTER TABLE buddy ADD COLUMN (relationtype VARCHAR(7));", null);
 			transaction.execute("UPDATE buddy SET relationtype = 'buddy' WHERE relationtype IS NULL", null);
+		}
 
+		// 1.32: add outfit layers
+		if (!transaction.doesColumnExist("npcs", "outfit_layers")) {
+			transaction.execute("ALTER TABLE npcs ADD COLUMN (outfit_layers VARCHAR(255));", null);
+		}
+		if (!transaction.doesColumnExist("character_stats", "outfit_layers")) {
+			transaction.execute("ALTER TABLE character_stats ADD COLUMN (outfit_layers VARCHAR(255));", null);
+			updateCharacterStatsOutfitToOutfitLayer(transaction);
+		}
+
+		// 1.34: renamed kill_blordroughs achievements
+		transaction.execute("UPDATE achievement SET identifier='quest.special.kill_blordroughs.0005' WHERE identifier='quest.special.kill_blordroughs.5'", null);
+		transaction.execute("UPDATE achievement SET identifier='quest.special.kill_blordroughs.0025' WHERE identifier='quest.special.kill_blordroughs.25'", null);
+
+		// 1.35: for performance reasons, keep track of number if awarded achievement
+		if (!transaction.doesColumnExist("achievement", "reached")) {
+			transaction.execute("ALTER TABLE achievement ADD COLUMN (reached INTEGER);", null);
+			transaction.execute("UPDATE achievement SET reached = 0 WHERE reached IS NULL;", null);
+		}
+
+		// 1.36: increase size of halloffame.fametype
+		if (transaction.getColumnLength("halloffame", "fametype") == 1) {
+			transaction.execute("ALTER TABLE halloffame                  MODIFY COLUMN fametype char(10) NOT NULL", null);
+			transaction.execute("ALTER TABLE halloffame_archive_alltimes MODIFY COLUMN fametype char(10) NOT NULL", null);
+			transaction.execute("ALTER TABLE halloffame_archive_recent   MODIFY COLUMN fametype char(10) NOT NULL", null);
+		}
+
+	}
+
+
+	private void updateCharacterStatsOutfitToOutfitLayer(DBTransaction transaction) throws SQLException {
+		PreparedStatement prepareStatement = transaction.prepareStatement("UPDATE character_stats SET outfit_layers=? WHERE name=?", null);
+		while (true) {
+			ResultSet set = transaction.query("SELECT name, outfit, outfit_colors FROM character_stats WHERE outfit_layers IS NULL LIMIT 10000", null);
+			if (!set.next()) {
+				break;
+			}
+			do {
+				String code = set.getString("outfit");
+				String outfitColors = set.getString("outfit_colors");
+				Map<String, String> colors = null;
+				Outfit outfit = new Outfit(code);
+				if (outfitColors != null && !outfitColors.equals("")) {
+					String[] split = outfitColors.split("_");
+					colors = new HashMap<>();
+					colors.put("detail", split[0]);
+					colors.put("hair", split[1]);
+					colors.put("head", split[2]);
+					colors.put("dress", split[3]);
+					colors.put("skin", split[4]);
+				}
+				prepareStatement.setString(1, outfit.getData(colors));
+				prepareStatement.setString(2, set.getString("name"));
+				prepareStatement.addBatch();
+			} while (set.next());
+			prepareStatement.executeBatch();
 		}
 	}
 
@@ -201,6 +262,7 @@ public class StendhalPlayerDatabase {
 		// define additional DAOs
 		DAORegister.get().register(PostmanDAO.class, new PostmanDAO());
 		DAORegister.get().register(StendhalBuddyDAO.class, new StendhalBuddyDAO());
+		DAORegister.get().register(StendhalGroupQuestDAO.class, new StendhalGroupQuestDAO());
 		DAORegister.get().register(StendhalHallOfFameDAO.class, new StendhalHallOfFameDAO());
 		DAORegister.get().register(StendhalKillLogDAO.class, new StendhalKillLogDAO ());
 		DAORegister.get().register(StendhalNPCDAO.class, new StendhalNPCDAO());

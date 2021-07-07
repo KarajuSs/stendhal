@@ -14,6 +14,7 @@ package games.stendhal.server.entity.npc.behaviour.adder;
 
 import org.apache.log4j.Logger;
 
+import games.stendhal.common.constants.SoundID;
 import games.stendhal.common.constants.SoundLayer;
 import games.stendhal.common.grammar.Grammar;
 import games.stendhal.common.grammar.ItemParserResult;
@@ -45,6 +46,10 @@ public class BuyerAdder {
 	 * Remark: There is only one conversation between a player and the NPC at any time.
 	 */
 	private ItemParserResult currentBehavRes;
+
+	public void addBuyer(final SpeakerNPC npc, final BuyerBehaviour buyerBehaviour) {
+		addBuyer(npc, buyerBehaviour, true);
+	}
 
 	public void addBuyer(final SpeakerNPC npc, final BuyerBehaviour buyerBehaviour, final boolean offer) {
 		final Engine engine = npc.getEngine();
@@ -146,7 +151,7 @@ public class BuyerAdder {
 
 						boolean success = buyerBehaviour.transactAgreedDeal(currentBehavRes, raiser, player);
 						if (success) {
-							raiser.addEvent(new SoundEvent("coins-01", SoundLayer.CREATURE_NOISE));
+							raiser.addEvent(new SoundEvent(SoundID.COMMERCE, SoundLayer.CREATURE_NOISE));
 						}
 
 						currentBehavRes = null;

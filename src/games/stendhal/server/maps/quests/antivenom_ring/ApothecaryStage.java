@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import games.stendhal.common.MathHelper;
 import games.stendhal.server.core.engine.SingletonRepository;
 import games.stendhal.server.entity.npc.ChatAction;
 import games.stendhal.server.entity.npc.ChatCondition;
@@ -37,6 +36,7 @@ import games.stendhal.server.entity.npc.condition.AndCondition;
 import games.stendhal.server.entity.npc.condition.GreetingMatchesNameCondition;
 import games.stendhal.server.entity.npc.condition.NotCondition;
 import games.stendhal.server.entity.npc.condition.PlayerHasInfostringItemWithHimCondition;
+import games.stendhal.server.entity.npc.condition.PlayerHasItemWithHimCondition;
 import games.stendhal.server.entity.npc.condition.QuestActiveCondition;
 import games.stendhal.server.entity.npc.condition.QuestCompletedCondition;
 import games.stendhal.server.entity.npc.condition.QuestInStateCondition;
@@ -52,10 +52,13 @@ public class ApothecaryStage extends AVRStage {
 	private static final String NOTE_INFOSTRING = "note to apothecary";
 
 	/* items taken to apothecary to create antivenom */
-	private static final String MIX_ITEMS = "medicinal ring=1;cobra venom=1;mandragora=2;fairy cake=20";
-	private static final List<String> MIX_NAMES = Arrays.asList("medicinal ring", "cobra venom", "mandragora", "fairy cake");
+	private static final String MIX_ITEMS = "cobra venom=1;mandragora=2;kokuda=1;fairy cake=20";
+	private static final List<String> MIX_NAMES = Arrays.asList("cobra venom", "mandragora", "kokuda", "fairy cake");
 
-	private static final int FUSE_TIME = MathHelper.MINUTES_IN_ONE_DAY * 3;
+	// time required (in minutes) to mix the antivenom
+	private static final int MIX_TIME = 30;
+
+	private static final String QUEST_STATE_NAME = "mixing";
 
 	public ApothecaryStage(final String npcName, final String questName) {
 		super(questName);
@@ -71,7 +74,8 @@ public class ApothecaryStage extends AVRStage {
 	public void addToWorld() {
 		addRequestQuestDialogue();
 		addGatheringItemsDialogue();
-		addBusyEnhancingDialogue();
+		addBusyMixingDialogue();
+		addDoneMixingDialogue();
 		addQuestDoneDialogue();
 		addGeneralResponsesDialogue();
 	}
@@ -124,7 +128,8 @@ public class ApothecaryStage extends AVRStage {
 						new IncreaseKarmaAction(5.0),
 						new DropInfostringItemAction("note", NOTE_INFOSTRING),
 						new SayRequiredItemsFromCollectionAction(questName,
-								"Klaas has asked me to assist you. I can make a ring that will increase your resistance to poison. I need you to bring me [items].  Do you have any of those with you?",
+								"Klaas has asked me to assist you. I can mix an antivenom that can be infused into a ring to increase its resistance to poison."
+								+ " I need you to bring me [items].  Do you have any of those with you?",
 								false)
 				)
 		);
@@ -132,7 +137,10 @@ public class ApothecaryStage extends AVRStage {
 		// Player accepts quest but dropped note
 		apothecary.add(ConversationStates.QUEST_OFFERED,
 				ConversationPhrases.YES_MESSAGES,
-				new NotCondition(new PlayerHasInfostringItemWithHimCondition("note", NOTE_INFOSTRING)),
+				new AndCondition(
+					new NotCondition(new QuestInStateCondition(questName, "ringmaker")),
+					new NotCondition(new PlayerHasInfostringItemWithHimCondition("note", NOTE_INFOSTRING))
+				),
 				ConversationStates.ATTENDING,
 				"Okay then, I will need you too... wait, where did that note go?",
 				null
@@ -143,7 +151,7 @@ public class ApothecaryStage extends AVRStage {
 				ConversationPhrases.GOODBYE_MESSAGES,
 				null,
 				ConversationStates.QUEST_OFFERED,
-				"That is not a \"yes\" or \"no\" answer. I said, Is that note you are carrying for me?",
+				"That is not a #yes or #no answer. I said, Is that note you are carrying for me?",
 				null);
 
 		// Player rejects quest
@@ -163,7 +171,9 @@ public class ApothecaryStage extends AVRStage {
 	private void addGatheringItemsDialogue() {
 		final ChatCondition gatheringStateCondition = new AndCondition(
 				new QuestActiveCondition(questName),
-				new NotCondition(new QuestStateStartsWithCondition(questName, "enhancing;")));
+				new NotCondition(new QuestInStateCondition(questName, 0, QUEST_STATE_NAME)),
+				new NotCondition(new QuestInStateCondition(questName, 0, RingMakerStage.QUEST_STATE_NAME)),
+				new NotCondition(new QuestInStateCondition(questName, 0, "ringmaker")));
 
 		// Player asks for quest after it is started
 		apothecary.add(ConversationStates.ATTENDING,
@@ -232,23 +242,6 @@ public class ApothecaryStage extends AVRStage {
 				null,
 				new SayRequiredItemsFromCollectionAction(questName, "Okay. I still need [items]", false));
 
-/*		// player says he didn't bring any items (says no)
-		apothecary.add(ConversationStates.ATTENDING,
-				ConversationPhrases.NO_MESSAGES,
-				new QuestActiveCondition(questName),
-				ConversationStates.IDLE,
-				"Ok. Let me know when you have found something.",
-				null);
-
-		// player says he didn't bring any items to different question
-		apothecary.add(ConversationStates.QUESTION_2,
-				ConversationPhrases.NO_MESSAGES,
-				new QuestActiveCondition(questName),
-				ConversationStates.IDLE,
-				"Ok. Let me know when you have found something.",
-				null);
-		*/
-
 		// player offers item that isn't in the list.
 		apothecary.add(ConversationStates.QUESTION_2, "",
 			new AndCondition(
@@ -258,9 +251,9 @@ public class ApothecaryStage extends AVRStage {
 			"I don't believe I asked for that.", null);
 
 		ChatAction mixAction = new MultipleActions (
-		new SetQuestAction(questName, "enhancing;" + Long.toString(System.currentTimeMillis())),
-		new SayTextAction("Thank you. I'll get to work on infusing your ring right after I enjoy a few of these fairy cakes. Please come back in "
-				+ Integer.toString(FUSE_TIME / MathHelper.MINUTES_IN_ONE_DAY) + " days.")
+		new SetQuestAction(questName, QUEST_STATE_NAME + ";" + Long.toString(System.currentTimeMillis())),
+		new SayTextAction("Thank you. I'll get to work on mixing the antivenom right after I enjoy a few of these fairy cakes. Please come back in "
+				+ Integer.toString(MIX_TIME) + " minutes.")
 		);
 
 		/* add triggers for the item names */
@@ -281,36 +274,85 @@ public class ApothecaryStage extends AVRStage {
 	}
 
 
-	private void addBusyEnhancingDialogue() {
+	private void addBusyMixingDialogue() {
 		// Returned too early; still working
 		apothecary.add(ConversationStates.IDLE,
 				ConversationPhrases.GREETING_MESSAGES,
 				new AndCondition(
 						new GreetingMatchesNameCondition(apothecary.getName()),
-						new QuestStateStartsWithCondition(questName, "enhancing;"),
-						new NotCondition(new TimePassedCondition(questName, 1, FUSE_TIME))),
+						new QuestStateStartsWithCondition(questName, QUEST_STATE_NAME),
+						new NotCondition(new TimePassedCondition(questName, 1, MIX_TIME))),
 				ConversationStates.IDLE,
 				null,
-				new SayTimeRemainingAction(questName, 1, FUSE_TIME, "I have not finished with the ring. Please check back in "));
+				new SayTimeRemainingAction(questName, 1, MIX_TIME, "I have not finished mixing the antivenom. Please check back in "));
 
 		final List<ChatAction> mixReward = new LinkedList<ChatAction>();
-		mixReward.add(new IncreaseXPAction(2000));
-		mixReward.add(new IncreaseKarmaAction(25.0));
-		mixReward.add(new EquipItemAction("antivenom ring", 1, true));
-		mixReward.add(new SetQuestAction(questName, "done"));
+		mixReward.add(new IncreaseXPAction(1000));
+		mixReward.add(new IncreaseKarmaAction(50.0));
+		mixReward.add(new EquipItemAction("antivenom", 1, true));
+		mixReward.add(new SetQuestAction(questName, "ringmaker"));
 		mixReward.add(new SetQuestAction(questName + "_extract", null)); // clear sub-quest slot
 
 		apothecary.add(ConversationStates.IDLE,
 				ConversationPhrases.GREETING_MESSAGES,
 				new AndCondition(new GreetingMatchesNameCondition(apothecary.getName()),
-						new QuestInStateCondition(questName, 0, "enhancing"),
-						new TimePassedCondition(questName, 1, FUSE_TIME)
+						new QuestInStateCondition(questName, 0, QUEST_STATE_NAME),
+						new TimePassedCondition(questName, 1, MIX_TIME)
 				),
 			ConversationStates.IDLE,
-			"I have finished infusing your ring. Now I'll finish the rest of my fairy cakes if you dont mind.",
+			"I have finished mixing the antivenom. Ognir is a skilled ring smith. He can infuse the antivenom into rings."
+			+ " Ask him about an #'antivenom ring'. Now I'll finish the rest of my fairy cakes if you dont mind.",
 			new MultipleActions(mixReward));
 	}
 
+	/**
+	 * Conversation states for NPC after antivenom has been acquired
+	 */
+	private void addDoneMixingDialogue() {
+		final ChatCondition missingAntivenom = new AndCondition(
+				new QuestInStateCondition(questName, 0, "ringmaker"),
+				new NotCondition(new PlayerHasItemWithHimCondition("antivenom")));
+
+		apothecary.add(ConversationStates.IDLE,
+			ConversationPhrases.GREETING_MESSAGES,
+			new AndCondition(
+				new QuestInStateCondition(questName, 0, "ringmaker"),
+				new PlayerHasItemWithHimCondition("antivenom")
+			),
+			ConversationStates.IDLE,
+			"Have you not been to see the ring maker Ognir?",
+			null);
+
+		// player lost antivenom
+		apothecary.add(ConversationStates.IDLE,
+				ConversationPhrases.GREETING_MESSAGES,
+				missingAntivenom,
+				ConversationStates.QUEST_OFFERED,
+				"What's this? You have lost the antivenom? I can mix another batch, but I will need you to gather the ingredients again. Do you want me to mix another antivenom?",
+				null);
+
+		// NPC offers to mix another vial of antivenom
+
+		// this is so player doesn't lose karma by saying "no"
+		apothecary.add(ConversationStates.QUEST_OFFERED,
+			ConversationPhrases.NO_MESSAGES,
+			missingAntivenom,
+			ConversationStates.IDLE,
+			"Oh, well, come back to me if you can't find your antivenom.",
+			null);
+
+		apothecary.add(ConversationStates.QUEST_OFFERED,
+			ConversationPhrases.YES_MESSAGES,
+			missingAntivenom,
+			ConversationStates.ATTENDING,
+			"Okay, I need you to bring me ",
+			new MultipleActions(
+				new SetQuestAction(questName, MIX_ITEMS),
+				new SayRequiredItemsFromCollectionAction(questName,
+					"Okay, I need you to bring me [items]. Do you have any of those with you?",
+					false))
+			);
+	}
 
 	/**
 	 * Conversation states for NPC after quest is completed.
@@ -342,124 +384,40 @@ public class ApothecaryStage extends AVRStage {
 	}
 
 	private void addGeneralResponsesDialogue() {
-		/*
-        // Player asks about required items
-		apothecary.add(ConversationStates.QUESTION_1,
-				Arrays.asList("gland", "venom gland", "glands", "venom glands"),
-				null,
-				ConversationStates.QUESTION_1,
-				"Some #snakes have a gland in which their venom is stored.",
-				null);
-
-		apothecary.add(ConversationStates.QUESTION_1,
-				Arrays.asList("mandragora", "mandragoras", "root of mandragora", "roots of mandragora", "root of mandragoras", "roots of mandragoras"),
-				null,
-				ConversationStates.QUESTION_1,
-				"This is my favorite of all herbs and one of the most rare. Out past Kalavan there is a hidden path in the trees. At the end you will find what you are looking for.",
-				null);
-		*/
-		apothecary.add(ConversationStates.QUESTION_1,
-				Arrays.asList("cake", "fairy cake"),
-				null,
-				ConversationStates.QUESTION_1,
-				"Oh, they are the best treat I have ever tasted. Only the most heavenly creatures could make such angelic food.",
-				null);
-
-		// Player asks about rings
-		apothecary.add(ConversationStates.QUESTION_1,
+		// responses to quest related items/ingredients
+		apothecary.addReply(
 				Arrays.asList("ring", "rings"),
-				null,
-				ConversationStates.QUESTION_1,
-				"There are many types of rings.",
-				null);
-
-		apothecary.add(ConversationStates.QUESTION_1,
+				"There are many types of rings.");
+		apothecary.addReply(
 				Arrays.asList("medicinal ring", "medicinal rings"),
-				null,
-				ConversationStates.QUESTION_1,
-				"Some poisonous creatures carry them.",
-				null);
-
-		apothecary.add(ConversationStates.QUESTION_1,
+				"Some poisonous creatures carry them.");
+		apothecary.addReply(
 				Arrays.asList("antivenom ring", "antivenom rings"),
-				null,
-				ConversationStates.QUESTION_1,
-				"If you bring me what I need I may be able to strengthen a #medicinal #ring.",
-				null);
-
-		apothecary.add(ConversationStates.QUESTION_1,
+				"If you bring me what I need I may be able to strengthen a #medicinal #ring.");
+		/* this item is not available
+		apothecary.addReply(
 				Arrays.asList("antitoxin ring", "antitoxin rings", "gm antitoxin ring", "gm antitoxin rings"),
-				null,
-				ConversationStates.QUESTION_1,
-				"Heh! This is the ultimate protection against poisoning. Good luck getting one!",
-				null);
-		/*
-		// Player asks about snakes
-		apothecary.add(ConversationStates.QUESTION_1,
-				Arrays.asList("snake", "snakes", "cobra", "cobras"),
-				null,
-				ConversationStates.QUESTION_1,
-				"I've heard rumor newly discovered pit full of snakes somewhere in Ados. But I've never searched for it myself. That kind of work is better left to adventurers.",
-				null);
-
-        // Player asks about required items
-		apothecary.add(ConversationStates.ATTENDING,
+				"Heh! This is the ultimate protection against poisoning. Good luck getting one!");
+		*/
+		apothecary.addReply(
+				Arrays.asList("venom", "cobra venom"),
+				"Someone who specializes with animals might know how to obtain some. I suggest visiting the "
+				+ "sanctuary in Ados.");
+		apothecary.addReply(
 				Arrays.asList("gland", "venom gland", "glands", "venom glands"),
-				null,
-				ConversationStates.ATTENDING,
-				"Some #snakes have a gland in which their venom is stored.",
-				null);
-
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("mandragora", "mandragoras", "root of mandragora", "roots of mandragora", "root of mandragoras", "roots of mandragoras"),
-				null,
-				ConversationStates.ATTENDING,
-				"This is my favorite of all herbs and one of the most rare. Out past Kalavan there is a hidden path in the trees. At the end you will find what you are looking for.",
-				null);
-		*/
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("cake", "fairy cake"),
-				null,
-				ConversationStates.ATTENDING,
-				"Oh, they are the best treat I have ever tasted. Only the most heavenly creatures could make such angelic food.",
-				null);
-
-		// Player asks about rings
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("ring", "rings"),
-				null,
-				ConversationStates.ATTENDING,
-				"There are many types of rings.",
-				null);
-
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("medicinal ring", "medicinal rings"),
-				null,
-				ConversationStates.ATTENDING,
-				"Some poisonous creatures carry them.",
-				null);
-
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("antivenom ring", "antivenom rings"),
-				null,
-				ConversationStates.ATTENDING,
-				"If you bring me what I need I may be able to strengthen a #medicinal #ring.",
-				null);
-
-		apothecary.add(ConversationStates.ATTENDING,
-				Arrays.asList("antitoxin ring", "antitoxin rings", "gm antitoxin ring", "gm antitoxin rings"),
-				null,
-				ConversationStates.ATTENDING,
-				"Heh! This is the ultimate protection against poisoning. Good luck getting one!",
-				null);
-		/*
-		// Player asks about snakes
-		apothecary.add(ConversationStates.ATTENDING,
+				"Some #snakes have a gland in which their venom is stored.");
+		apothecary.addReply(
 				Arrays.asList("snake", "snakes", "cobra", "cobras"),
-				null,
-				ConversationStates.ATTENDING,
-				"I've heard rumor newly discovered pit full of snakes somewhere in Ados. But I've never searched for it myself. That kind of work is better left to adventurers.",
-				null);
-		*/
+				"I've heard rumor of a newly discovered pit full of snakes somewhere in Ados. But I've never "
+					+ "searched for it myself. That kind of work is better left to adventurers.");
+		apothecary.addReply(
+				Arrays.asList("mandragora", "mandragoras", "root of mandragora", "roots of mandragora",
+						"root of mandragoras", "roots of mandragoras"),
+				"This is my favorite of all the herbs and one of the most rare. There are only a few places "
+				+ "in Faimouni where it grows. Keep a vigilant eye, or you will pass them right up.");
+		apothecary.addReply(
+				Arrays.asList("cake", "fairy cake"),
+				"Oh, fairy cakes are the best treat I have ever tasted. Only the most heavenly creatures "
+					+ "could make such angelic food.");
 	}
 }

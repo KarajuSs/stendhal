@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +179,8 @@ public abstract class RPEntity extends AudibleEntity {
 
 	private int def;
 
+	private int ratk;
+
 	private int xp;
 
 	private int hp;
@@ -189,10 +192,6 @@ public abstract class RPEntity extends AudibleEntity {
 	 */
 	private String outfit_ext;
 	private int outfit;
-	private int outfitMouth;
-	private int outfitEyes;
-	private int outfitMask;
-	private int outfitHat;
 
 	private int baseHP;
 
@@ -241,12 +240,20 @@ public abstract class RPEntity extends AudibleEntity {
 
 	private int defXP;
 
+	private int ratkXP;
+
 	private int atkItem = -1;
 
 	private int defItem = -1;
 
+	private int ratkItem = -1;
+
 	/** A flag that gets set once the entity has been released. */
 	private boolean released;
+
+	/** entity casts shadow by default */
+	private boolean castShadow = true;
+	private String shadowStyle;
 
 	/** Possible attack results. */
 	public enum Resolution {
@@ -342,6 +349,27 @@ public abstract class RPEntity extends AudibleEntity {
 	 */
 	public int getDefXP() {
 		return defXP;
+	}
+
+	/**
+	 * @return Returns the ratk.
+	 */
+	public int getRatk() {
+		return ratk;
+	}
+
+	/**
+	 * @return Returns the ratk of items
+	 */
+	public int getRatkItem() {
+		return ratkItem;
+	}
+
+	/**
+	 * @return the ranged xp
+	 */
+	public int getRatkXP() {
+		return ratkXP;
 	}
 
 	/**
@@ -1014,12 +1042,6 @@ public abstract class RPEntity extends AudibleEntity {
 		/*
 		 * Outfit
 		 */
-		/*
-		outfitMouth = OUTFIT_UNSET;
-		outfitEyes = OUTFIT_UNSET;
-		outfitMask = OUTFIT_UNSET;
-		outfitHat = OUTFIT_UNSET;
-		*/
 		if (object.has("outfit_ext")) {
 			outfit_ext = object.get("outfit_ext");
 		} else {
@@ -1082,6 +1104,14 @@ public abstract class RPEntity extends AudibleEntity {
 
 		showTitle = !object.has("unnamed");
 		showHP = !object.has("no_hpbar");
+
+		/*
+		 * Determine if entity should not cast a shadow
+		 */
+		if (object.has("no_shadow")) {
+			castShadow = false;
+		}
+		shadowStyle = object.get("shadow_style");
 
 		initializeSounds();
 	}
@@ -1329,6 +1359,13 @@ public abstract class RPEntity extends AudibleEntity {
 			def = changes.getInt("modified_def");
 		}
 
+		if (changes.has("ratk")) {
+			ratk = changes.getInt("ratk");
+		}
+		if (changes.has("modified_ratk")) {
+			ratk = changes.getInt("modified_ratk");
+		}
+
 		if (changes.has("level")) {
 			level = changes.getInt("level");
 		}
@@ -1344,12 +1381,20 @@ public abstract class RPEntity extends AudibleEntity {
 			defXP = changes.getInt("def_xp");
 		}
 
+		if (changes.has("ratk_xp")) {
+			ratkXP = changes.getInt("ratk_xp");
+		}
+
 		if (changes.has("atk_item")) {
 			atkItem = changes.getInt("atk_item");
 		}
 
 		if (changes.has("def_item")) {
 			defItem = changes.getInt("def_item");
+		}
+
+		if (changes.has("ratk_item")) {
+			ratkItem = changes.getInt("ratk_item");
 		}
 
 		if (changes.has("mana")) {
@@ -1400,9 +1445,28 @@ public abstract class RPEntity extends AudibleEntity {
 			xp = newXp;
 		}
 
-		if (changes.has("level") && object.has("level")
-				&& (User.squaredDistanceTo(x, y) < HEARING_DISTANCE_SQ)) {
-			final String text = getTitle() + " reaches Level " + getLevel();
+		final Map<String, Integer> statTypes = new LinkedHashMap<>();
+		statTypes.put("level", getLevel());
+		statTypes.put("def", getDef());
+		statTypes.put("atk", getAtk());
+		statTypes.put("ratk", getRatk());
+
+		String statChange = null;
+		for (final String stype: statTypes.keySet()) {
+			if (changes.has(stype) && object.has(stype)) {
+				statChange = stype;
+				break;
+			}
+		}
+
+		if (statChange != null && (User.squaredDistanceTo(x, y) < HEARING_DISTANCE_SQ)) {
+			final StringBuilder sb = new StringBuilder(getTitle());
+			if (!statChange.equals("level")) {
+				sb.append("'s " + statChange.toUpperCase());
+			}
+			sb.append(" reaches level " + Integer.toString(statTypes.get(statChange)));
+
+			final String text = sb.toString();
 			ClientSingletonRepository.getUserInterface().addEventLine(new HeaderLessEventLine(text,
 					NotificationType.SIGNIFICANT_POSITIVE));
 
@@ -1515,5 +1579,30 @@ public abstract class RPEntity extends AudibleEntity {
 	 */
 	public boolean showHPBar() {
 		return showHP;
+	}
+
+	/**
+	 * Check if a shadow should be drawn under the entity.
+	 *
+	 * @return
+	 * 		<code>true</code> if a shadow should be drawn,
+	 * 		<code>false</code> if not.
+	 */
+	public boolean castsShadow() {
+		return castShadow;
+	}
+
+	/**
+	 * Retrieves the name that should be used to override shadow.
+	 *
+	 * @return
+	 * 		String path to shadow file to use or <code>null</code>.
+	 */
+	public String getShadowStyle() {
+		if (shadowStyle == null) {
+			return null;
+		}
+
+		return "data/sprites/shadow/shadow-" + shadowStyle + ".png";
 	}
 }

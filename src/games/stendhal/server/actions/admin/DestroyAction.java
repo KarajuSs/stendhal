@@ -26,10 +26,10 @@ import games.stendhal.server.entity.RPEntity;
 import games.stendhal.server.entity.creature.Creature;
 import games.stendhal.server.entity.item.Corpse;
 import games.stendhal.server.entity.item.Item;
+import games.stendhal.server.entity.item.SlotActivatedItem;
 import games.stendhal.server.entity.mapstuff.portal.Portal;
 import games.stendhal.server.entity.mapstuff.spawner.FlowerGrower;
 import games.stendhal.server.entity.npc.PassiveNPC;
-import games.stendhal.server.entity.npc.SpeakerNPC;
 import games.stendhal.server.entity.player.Player;
 import marauroa.common.game.RPAction;
 import marauroa.common.game.RPObject;
@@ -76,6 +76,11 @@ class DestroyAction extends AdministrationAction {
 				new ItemLogger().destroy(player, inspected.getContainerSlot(), inspected, "admin");
 			}
 
+			// disable effects of slot activated items
+			if (inspected instanceof SlotActivatedItem) {
+				((SlotActivatedItem) inspected).onUnequipped();
+			}
+
 			String slotname = inspected.getContainerSlot().getName();
 			int objectID = inspected.getID().getObjectID();
 			if (null != inspected.getContainerSlot().remove(inspected.getID())) {
@@ -85,16 +90,15 @@ class DestroyAction extends AdministrationAction {
 				player.sendPrivateText("Removed contained " + name + " " + clazz + " with ID " + objectID + " from " + slotname);
 			} else {
 				player.sendPrivateText("could not remove contained " + inspected + " " + clazz + " with ID " + objectID + " from " + slotname);
+
+				// re-enable effects of slot activated item in case removal failed
+				if (inspected instanceof SlotActivatedItem) {
+					((SlotActivatedItem) inspected).onEquipped(player, slotname);
+				}
 			}
 		} else {
 			if (inspected instanceof Player) {
 				final String text = "You can't remove players";
-				player.sendPrivateText(text);
-				return;
-			}
-
-			if (inspected instanceof SpeakerNPC) {
-				final String text = "You can't remove SpeakerNPCs";
 				player.sendPrivateText(text);
 				return;
 			}

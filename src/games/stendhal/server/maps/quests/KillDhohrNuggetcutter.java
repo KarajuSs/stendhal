@@ -103,7 +103,7 @@ public class KillDhohrNuggetcutter extends AbstractQuest {
 								raiser.setCurrentState(ConversationStates.ATTENDING);
 								return;
 							}
-							raiser.say("Would you like to help again clearing this Keep of our enemies, those #dwarves?");
+							raiser.say("Would you like to help again clearing this Keep of our enemies, those dwarves?");
 						} else {
 							raiser.say("Thank you for your help in our time of need. Now we feel much safer.");
 							raiser.setCurrentState(ConversationStates.ATTENDING);
@@ -182,7 +182,7 @@ public class KillDhohrNuggetcutter extends AbstractQuest {
 	public void addToWorld() {
 		fillQuestInfo(
 				"Kill Dhohr Nuggetcutter",
-				"Zogfang, the orc who guards the entrance of Abandoned Keep, isn't feeling safe while some dwarves still remain in the Keep.",
+				"Zogfang, the orc who guards the entrance of the Abandoned Keep, isn't feeling safe while some dwarves still remain in the Keep.",
 				false);
 		step_1();
 		step_2();

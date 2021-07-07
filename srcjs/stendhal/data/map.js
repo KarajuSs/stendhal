@@ -119,13 +119,13 @@ stendhal.data.map = {
 			return this.gidsindex[this.gidsindex.length - 1] + 1;
 		}
 	},
-	
+
 	onTransfer: function(zoneName, content) {
 		stendhal.data.map.currentZoneName = zoneName;
 		stendhal.data.map.firstgids = [];
 		stendhal.data.map.layers = [];
 		stendhal.data.map.layerNames = [];
-		
+
 		var body = document.getElementById("body");
 		body.style.cursor = "wait";
 		console.log("load map");
@@ -140,7 +140,6 @@ stendhal.data.map = {
 		stendhal.data.map.decodeMapLayer(content, "4_roof_add");
 		stendhal.data.map.protection = stendhal.data.map.decodeMapLayer(content, "protection");
 		stendhal.data.map.collisionData = stendhal.data.map.decodeMapLayer(content, "collision");
-		
 	},
 
 	decodeTileset: function(content, name) {
@@ -154,6 +153,9 @@ stendhal.data.map = {
 			var source = deserializer.readString();
 			var firstgid = deserializer.readInt()
 
+			// Security Note: The following line triggers a false positive.
+			// This is not input validation. It just rewrites a path used by the
+			// Java client to a path matching the webserver directory layout.
 			var filename = "/" + source.replace(/\.\.\/\.\.\//g, "");
 			images.push(filename);
 			stendhal.data.map.firstgids.push(firstgid);
@@ -185,7 +187,7 @@ stendhal.data.map = {
 		stendhal.data.map.zoneSizeX = deserializer.readInt();
 		stendhal.data.map.zoneSizeY = deserializer.readInt();
 		var layerRaw = deserializer.readByteArray();
-		
+
 		var layer = [];
 		for (var i = 0; i < stendhal.data.map.zoneSizeX * stendhal.data.map.zoneSizeY * 4 - 3; i=i+4) {
 			var tileId = (layerRaw.getUint8(i) >>> 0)

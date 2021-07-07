@@ -39,11 +39,35 @@
       <parameter name="weather">varying</parameter>
     </attributes>
 
-    <!-- sign indicating future assassins' dojo -->
+    <!-- Archery Range -->
+
+    <configurator class-name="games.stendhal.server.maps.nalwor.forest.ArcheryRange" condition="testing.combat" />
+
+    <configurator class-name="games.stendhal.server.core.config.zone.NoTeleportIn">
+      <parameter name="x">96</parameter>
+      <parameter name="y">96</parameter>
+      <parameter name="width">21</parameter>
+      <parameter name="height">12</parameter>
+    </configurator>
+
+    <!-- gate leading to path to dojo -->
+    <entity x="96" y="117">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.portal.Gate">
+        <parameter name="orientation">v</parameter>
+        <parameter name="image">palisade_gate</parameter>
+        <parameter name="autoclose">2</parameter>
+      </implementation>
+    </entity>
+
+    <!-- Dojo -->
+    <configurator class-name="games.stendhal.server.maps.nalwor.forest.Dojo" />
+    <configurator class-name="games.stendhal.server.maps.nalwor.forest.DojoSellerNPC" />
+    <!-- sign indicating direction to assassins' dojo -->
     <entity x="97" y="116">
       <implementation class-name="games.stendhal.server.entity.mapstuff.sign.Sign" />
-      <attribute name="text">COMING SOON: Assassins' Dojo</attribute>
+      <attribute name="text">🡄 This way to Assassins' Dojo</attribute>
     </entity>
+
   </zone>
 
   <zone name="0_nalwor_forest_ne" level="0" x="500384" y="500128"
@@ -320,7 +344,7 @@ below average.
     <entity x="23" y="1">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -382,7 +406,7 @@ below average.
     <entity x="9" y="20">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -437,7 +461,7 @@ below average.
     <entity x="6" y="8">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -477,7 +501,7 @@ below average.
     <entity x="5" y="20">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.useable.PlaySoundEntity">
-        <parameter name="sound">piano-1</parameter>
+        <parameter name="sound">piano-01</parameter>
         <parameter name="radius">40</parameter>
       </implementation>
       <attribute name="width">2</attribute>
@@ -962,6 +986,14 @@ below average.
   <zone name="0_nalwor_river_sw" level="0" x="500128" y="500384"
     file="Level 0/nalwor/river_sw.tmx">
 
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">ghost_woods</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <configurator
       class-name="games.stendhal.server.maps.nalwor.river.PinkCrystalNPC" />
 
@@ -990,10 +1022,20 @@ below average.
 
   <zone name="0_nalwor_river_s" level="0" x="500256" y="500384"
     file="Level 0/nalwor/river_s.tmx">
+
     <attributes>
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying</parameter>
     </attributes>
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">ghost_woods</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
+
     <entity x="98" y="88">
       <implementation
         class-name="games.stendhal.server.entity.mapstuff.area.MessagingArea">
@@ -1016,20 +1058,38 @@ below average.
 
   <zone name="0_nalwor_river_se" level="0" x="500384" y="500384"
     file="Level 0/nalwor/river_se.tmx">
+
     <attributes>
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying</parameter>
     </attributes>
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">ghost_woods</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
 
   </zone>
 
 
   <zone name="0_nalwor_river_s_e2" level="0" x="500512" y="500384"
     file="Level 0/nalwor/river_s_e2.tmx">
+
     <attributes>
       <parameter name="color_method">time</parameter>
       <parameter name="weather">varying</parameter>
     </attributes>
+
+    <!-- music -->
+    <entity x="0" y="0">
+      <implementation class-name="games.stendhal.server.entity.mapstuff.sound.BackgroundMusicSource">
+        <parameter name="sound">ghost_woods</parameter>
+        <parameter name="volume">80</parameter>
+      </implementation>
+    </entity>
 
     <entity x="57" y="64">
       <implementation

@@ -31,7 +31,11 @@ import games.stendhal.server.entity.npc.ConversationPhrases;
 import games.stendhal.server.entity.npc.ConversationStates;
 import games.stendhal.server.entity.npc.EventRaiser;
 import games.stendhal.server.entity.npc.SpeakerNPC;
+import games.stendhal.server.entity.npc.condition.AndCondition;
 import games.stendhal.server.entity.npc.condition.GreetingMatchesNameCondition;
+import games.stendhal.server.entity.npc.condition.QuestActiveCondition;
+import games.stendhal.server.entity.npc.condition.QuestCompletedCondition;
+import games.stendhal.server.entity.npc.condition.TimePassedCondition;
 import games.stendhal.server.entity.player.Player;
 import games.stendhal.server.util.TimeUtil;
 
@@ -61,7 +65,9 @@ import games.stendhal.server.util.TimeUtil;
  * REPETITIONS: <ul><li> once a week.</ul>
  */
 
- public class KillBlordroughs extends AbstractQuest {
+public class KillBlordroughs extends AbstractQuest {
+
+	private static KillBlordroughs instance;
 
 	private static final String QUEST_NPC = "Mrotho";
 	private static final String QUEST_SLOT = "kill_blordroughs";
@@ -81,6 +87,21 @@ import games.stendhal.server.util.TimeUtil;
 			"blordrough general"
 			);
 
+
+	/**
+	 * Get the static instance.
+	 *
+	 * @return
+	 * 		KillBlordroughs
+	 */
+	public static KillBlordroughs getInstance() {
+		if (instance == null) {
+			instance = new KillBlordroughs();
+		}
+
+		return instance;
+	}
+
 	/**
 	 * function returns list of blordrough creatures.
 	 * @return - list of blordrough creatures
@@ -90,7 +111,7 @@ import games.stendhal.server.util.TimeUtil;
 		final EntityManager manager = SingletonRepository.getEntityManager();
 		for (int i=0; i<BLORDROUGHS.size(); i++) {
 			Creature creature = manager.getCreature(BLORDROUGHS.get(i));
-			if (!creature.isRare()) {
+			if (!creature.isAbnormal()) {
 				blordroughs.add(creature);
 			}
 		}
@@ -180,6 +201,8 @@ import games.stendhal.server.util.TimeUtil;
 				recsolo = 0;
 			} else if (temp.equals("")) {
 				recsolo = 0;
+			} else if (temp.startsWith("completed=")) {
+				recsolo = 0;
 			} else {
 				recsolo = Integer.parseInt(temp);
 			}
@@ -187,6 +210,8 @@ import games.stendhal.server.util.TimeUtil;
 			if (temp == null) {
 				recshared = 0;
 			} else if (temp.equals("")) {
+				recshared = 0;
+			} else if (temp.startsWith("completed=")) {
 				recshared = 0;
 			} else {
 				recshared = Integer.parseInt(temp);
@@ -237,9 +262,12 @@ import games.stendhal.server.util.TimeUtil;
 				shared = Integer.parseInt(temp);
 			}
 
-			sb.append(";"+solo);
-			sb.append(";"+shared);
+			sb.append(";" + solo);
+			sb.append(";" + shared);
 		}
+
+		sb.append(";completed=" + getCompletedCount(player));
+
 		//player.sendPrivateText(sb.toString());
 		player.setQuest(QUEST_SLOT, sb.toString());
 	}
@@ -254,10 +282,37 @@ import games.stendhal.server.util.TimeUtil;
 		final StackableItem money = (StackableItem) SingletonRepository.getEntityManager()
 			.getItem("money");
 		money.setQuantity(50000);
-		player.setQuest(QUEST_SLOT, "done;"+System.currentTimeMillis());
+
+		player.setQuest(QUEST_SLOT, "done;" + System.currentTimeMillis() + ";completed=" + Integer.toString(getCompletedCount(player) + 1));
 		player.equipOrPutOnGround(money);
 		player.addKarma(karmabonus);
 		player.addXP(500000);
+	}
+
+	/**
+	 * Checks how many times the player has completed the quest.
+	 *
+	 * @param player
+	 * 		Player to check.
+	 * @return
+	 * 		Number of times player has completed quest.
+	 */
+	public int getCompletedCount(final Player player) {
+		if (player.getQuest(QUEST_SLOT) != null) {
+			final String[] slots = player.getQuest(QUEST_SLOT).split(";");
+
+			final String temp = slots[slots.length - 1];
+			if (temp.startsWith("completed=")) {
+				return Integer.parseInt(temp.split("=")[1]);
+			}
+
+			// completion count was not previously tracked, so check if quest has been completed at least once
+			if (slots[0].equals("done")) {
+				return 1;
+			}
+		}
+
+		return 0;
 	}
 
 	/**
@@ -339,6 +394,14 @@ import games.stendhal.server.util.TimeUtil;
 				ConversationStates.ATTENDING,
 				null,
 				new QuestAction());
+
+		// compatibility so players can say "done"
+		npc.add(ConversationStates.ATTENDING,
+				ConversationPhrases.FINISH_MESSAGES,
+				new QuestActiveCondition(QUEST_SLOT),
+				ConversationStates.ATTENDING,
+				null,
+				new QuestAction());
 	}
 
 	/**
@@ -356,6 +419,8 @@ import games.stendhal.server.util.TimeUtil;
 
 	@Override
 	public List<String> getHistory(final Player player) {
+		final int completedCount = getCompletedCount(player);
+
 		final List<String> res = new ArrayList<String>();
 		if (!player.hasQuest(QUEST_SLOT)) {
 				return res;
@@ -363,12 +428,23 @@ import games.stendhal.server.util.TimeUtil;
 		res.add("I have met Mrotho in Ados barracks.");
 		final String questState = player.getQuest(QUEST_SLOT);
 		if (questState.contains("done")) {
-			res.add("I killed blordroughs and get reward from "+QUEST_NPC);
-			return res;
+			res.add("I killed blordroughs and get reward from " + QUEST_NPC);
 		} else {
-			res.add("I killed "+Integer.toString(getKilledCreaturesNumber(player))+" blordroughs (need "+Integer.toString(killsnumber)+ ").");
+			res.add("I killed " + Integer.toString(getKilledCreaturesNumber(player)) + " blordroughs (need " + Integer.toString(killsnumber) + ").");
 		}
+
+		if (completedCount > 0) {
+			res.add("I have slain " + Integer.toString(completedCount) + " blordrough armies.");
+		}
+
         return res;
+	}
+
+	@Override
+	public boolean isRepeatable(final Player player) {
+		return new AndCondition(
+				new QuestCompletedCondition(QUEST_SLOT),
+				new TimePassedCondition(QUEST_SLOT, 1, MathHelper.MINUTES_IN_ONE_WEEK)).fire(player, null, null);
 	}
 
 	/**

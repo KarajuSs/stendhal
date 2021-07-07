@@ -20,6 +20,12 @@ package games.stendhal.server.core.rp.achievement;
 public enum Category {
 	/** xp points */
 	EXPERIENCE,
+	/** def level */
+	EXPERIENCE_DEF,
+	/** atk level */
+	EXPERIENCE_ATK,
+	/** ratk level */
+	EXPERIENCE_RATK,
 	/** fighting and killing creatures */
 	FIGHTING,
 	/** solving quests */
@@ -36,6 +42,8 @@ public enum Category {
 	ITEM,
 	/** getting items */
 	OBTAIN,
+	/** buying/selling items */
+	COMMERCE,
 	/** helping others and being friendly */
 	FRIEND,
 	/** producing items */
@@ -47,5 +55,9 @@ public enum Category {
 	/** kirdneh item quest */
 	QUEST_KIRDNEH_ITEM,
 	/** mithrilbourgh kill enemy army quest */
-	QUEST_MITHRILBOURGH_ENEMY_ARMY;
+	QUEST_MITHRILBOURGH_ENEMY_ARMY,
+	/** kill blordroughs quest */
+	QUEST_KILL_BLORDROUGHS,
+	/** deathmatch related */
+	DEATHMATCH;
 }

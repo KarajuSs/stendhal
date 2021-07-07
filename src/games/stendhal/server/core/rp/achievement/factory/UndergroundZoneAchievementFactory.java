@@ -25,7 +25,7 @@ public class UndergroundZoneAchievementFactory extends AbstractAchievementFactor
 		list.add(createAchievement("zone.underground.semos", "Canary", "Visit all underground zones in the Semos region",
 									Achievement.MEDIUM_BASE_SCORE, true,
 									new PlayerVisitedZonesInRegionCondition("semos", Boolean.TRUE, Boolean.FALSE)));
-		list.add(createAchievement("zone.underground.nalwor", "Fear not drows nor hell", "Visit all underground zones in the Nalwor region",
+		list.add(createAchievement("zone.underground.nalwor", "Fear not Drows nor Hell", "Visit all underground zones in the Nalwor region",
 									Achievement.MEDIUM_BASE_SCORE, true,
 									new PlayerVisitedZonesInRegionCondition("nalwor", Boolean.TRUE, Boolean.FALSE)));
 		list.add(createAchievement("zone.underground.athor", "Labyrinth Solver", "Visit all underground zones in the Athor region",
@@ -37,6 +37,9 @@ public class UndergroundZoneAchievementFactory extends AbstractAchievementFactor
 		list.add(createAchievement("zone.underground.ados", "Deep Dweller", "Visit all underground zones in the Ados region",
 									Achievement.MEDIUM_BASE_SCORE, true,
 									new PlayerVisitedZonesInRegionCondition("ados", Boolean.TRUE, Boolean.FALSE)));
+		list.add(createAchievement("zone.underground.deniran", "Spelunker", "Visit all underground zones in the Deniran region",
+									Achievement.HARD_BASE_SCORE, true,
+									new PlayerVisitedZonesInRegionCondition("deniran", true, false)));
 		return list;
 	}
 

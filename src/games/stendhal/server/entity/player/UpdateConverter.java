@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import games.stendhal.common.ItemTools;
 import games.stendhal.common.KeyedSlotUtil;
+import games.stendhal.common.constants.Testing;
 import games.stendhal.server.core.engine.SingletonRepository;
 import games.stendhal.server.core.rule.EntityManager;
 import games.stendhal.server.entity.Outfit;
@@ -105,11 +106,9 @@ public abstract class UpdateConverter {
 		ZONE_MAPPING.put("-1_deniran_caves_wall", "-1_deniran_caves_e2");
 		ZONE_MAPPING.put("-1_deniran_caves_wall_s", "-1_deniran_caves_s_e2");
 		ZONE_MAPPING.put("-2_deniran_lost_caves_nw2", "-2_deniran_lost_caves_n2_w");
-		ZONE_MAPPING.put("-2_deniran_lost_caves_nw", "-2_deniran_lost_caves_n2");
 		ZONE_MAPPING.put("-2_deniran_caves_w", "-2_deniran_caves_w");
 		ZONE_MAPPING.put("-2_deniran_caves_sw", "-2_deniran_caves_sw");
-		ZONE_MAPPING.put("-2_deniran_lost_caves_n2", "-2_deniran_lost_caves_n2");
-		ZONE_MAPPING.put("-2_deniran_lost_caves_n", "-2_deniran_lost_caves");
+		ZONE_MAPPING.put("-2_deniran_lost_caves", "-2_deniran_lost_caves_n");
 		ZONE_MAPPING.put("-2_deniran_caves_deniran", "-2_deniran_caves");
 		ZONE_MAPPING.put("-2_deniran_caves_s", "-2_deniran_caves_s");
 		ZONE_MAPPING.put("-2_deniran_lost_caves_ne2", "-2_deniran_lost_caves_n2_e");
@@ -257,7 +256,7 @@ public abstract class UpdateConverter {
     	final String[] slotsNormal = { "bag", "rhand", "lhand", "head", "armor",
     			"legs", "feet", "finger", "cloak", "bank", "bank_ados", "bank_deniran",
     			"zaras_chest_ados", "bank_fado", "bank_nalwor", "spells",
-    			"keyring", "portfolio", "trade" };
+    			"keyring", /*"portfolio", */ "trade", "pouch" };
 
     	final String[] slotsSpecial = { "!quests", "!kills", "!buddy", "!ignore",
     			"!visited", "skills", "!tutorial"};
@@ -317,6 +316,10 @@ public abstract class UpdateConverter {
     		object.put("atk", "10");
     		object.put("def", "10");
     	}
+
+		if (Testing.COMBAT && !object.has("ratk_xp")) {
+			object.put("ratk_xp", "0");
+		}
 
     	if (!object.has("age")) {
     		object.put("age", "0");
@@ -379,9 +382,17 @@ public abstract class UpdateConverter {
 			if (KeyedSlotUtil.getKeyedSlot(object, "!features", "keyring") != null) {
 				object.put("features", "keyring", "");
 			}
+			/*
 			if (KeyedSlotUtil.getKeyedSlot(object, "!features", "portfolio") != null) {
 				object.put("features", "portfolio", "");
 			}
+			*/
+
+	    	// money pouch
+			if (KeyedSlotUtil.getKeyedSlot(object, "!features", "pouch") != null) {
+				object.put("features", "pouch");
+			}
+
 			object.removeSlot("!features");
 		}
 		if (KeyedSlotUtil.getKeyedSlot(object, "!quests", "learn_karma") != null) {
